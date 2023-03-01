@@ -26,6 +26,7 @@ INPUT FILES TO ADD :
 from files_generator import *
 from meneco_utils import *
 from stats_recap import *
+from meneco_validation_BlastP import meneco_validation_blast
 import os
 import shutil
 import argparse
@@ -76,14 +77,10 @@ def blastp_step(meneco_tsv, meneco_filtered):
     db_padmet = get_file_from_ext(os.path.join(INPUT, DATABASE_D), PADMET_EXT)
     prot_fasta = get_file_from_ext(os.path.join(INPUT, DATABASE_D), FASTA_EXT)
     species_proteome = get_file_from_ext(os.path.join(INPUT, SPECIES_D), FAA_EXT)
-    if get_file_from_ext(os.path.join(INPUT, SPECIES_D), '.fna') is not None:
-        species_genome = get_file_from_ext(os.path.join(INPUT, SPECIES_D), '.fna')
-        os.system(f'python meneco_validation_BlastP.py -m {meneco_tsv} -o {output} -db {db_padmet} -dbf {prot_fasta} '
-                  f'-p {species_proteome} -g {species_genome}')
-    else:
-        os.system(f'python meneco_validation_BlastP.py -m {meneco_tsv} -o {output} -db {db_padmet} -dbf {prot_fasta} '
-                  f'-p {species_proteome}')
-
+    species_genome = get_file_from_ext(os.path.join(INPUT, SPECIES_D), '.fna')
+    # Run function
+    meneco_validation_blast(meneco_tsv, output, db_padmet, prot_fasta, species_proteome, species_genome)
+    # Move filtered tsv output file in correct path
     os.rename(os.path.join(output, 'results', 'meneco_output_filtered.tsv'),
               meneco_filtered)
 

@@ -15,7 +15,7 @@ OUTPUT = os.path.join('Output')
 AUCOME_D = 'AuCoMe'
 HOLOBIONT_D = 'Holobiont'
 DATABASE_D = 'DataBase'
-NETWORK_D = 'Network'
+NETWORK_D = 'Networks'
 SEEDS_D = 'Seeds'
 SPECIES_D = 'Species_seq'
 TARGETS_D = 'Targets'
@@ -96,25 +96,26 @@ DB_SBML = os.path.join(INPUT, DATABASE_D, f'database{SBML_EXT}')
 # NETWORKS
 
 # START NETWORKS
-MEDIUM_NW = os.path.join(INPUT, NETWORK_D, PADMET_D, f'1_medium{PADMET_EXT}')
+
+MEDIUM_NW = os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'1_medium{PADMET_EXT}')
 BASE_NW = {PADMET_D: os.path.join(INPUT, NETWORK_D, PADMET_D, f'1_base{PADMET_EXT}'),
            SBML_D: os.path.join(INPUT, NETWORK_D, SBML_D, f'1_base{SBML_EXT}')}
 
 # BLASTP GAPFILLING NETWORKS
-BLASTP_GF_NW = {PADMET_D: os.path.join(INPUT, NETWORK_D, PADMET_D, f'2_gapfilling_blastp{PADMET_EXT}'),
-                SBML_D: os.path.join(INPUT, NETWORK_D, SBML_D, f'2_gapfilling_blastp{SBML_EXT}')}
+BLASTP_GF_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'2_gapfilling_blastp{PADMET_EXT}'),
+                SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'2_gapfilling_blastp{SBML_EXT}')}
 
 # HOLOBIONT GAPFILLING NETWORKS
-HOLOBIONT_GF_NW = {PADMET_D: os.path.join(INPUT, NETWORK_D, PADMET_D, f'3_gapfilling_holobiont{PADMET_EXT}'),
-                   SBML_D: os.path.join(INPUT, NETWORK_D, SBML_D, f'3_gapfilling_holobiont{SBML_EXT}')}
+HOLOBIONT_GF_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'3_gapfilling_holobiont{PADMET_EXT}'),
+                   SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'3_gapfilling_holobiont{SBML_EXT}')}
 
 # AUCOME GAPFILLING NETWORKS
-AUCOME_GF_NW = {PADMET_D: os.path.join(INPUT, NETWORK_D, PADMET_D, f'4_gapfilling_aucome{PADMET_EXT}'),
-                SBML_D: os.path.join(INPUT, NETWORK_D, SBML_D, f'4_gapfilling_aucome{SBML_EXT}')}
+AUCOME_GF_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'4_gapfilling_aucome{PADMET_EXT}'),
+                SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'4_gapfilling_aucome{SBML_EXT}')}
 
 # FINAL GAPFILLING NETWORKS
-FINAL_GF_NW = {PADMET_D: os.path.join(INPUT, NETWORK_D, PADMET_D, f'5_gapfilling_final{PADMET_EXT}'),
-               SBML_D: os.path.join(INPUT, NETWORK_D, SBML_D, f'5_gapfilling_final{SBML_EXT}')}
+FINAL_GF_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'5_gapfilling_final{PADMET_EXT}'),
+               SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'5_gapfilling_final{SBML_EXT}')}
 
 
 # INITIALIZATION =======================================================================================================
@@ -126,8 +127,7 @@ def create_folders():
                          DATABASE_D,
                          HOLOBIONT_D,
                          SPECIES_D,
-                         {NETWORK_D: [PADMET_D,
-                                      SBML_D]},
+                         NETWORK_D,
                          SEEDS_D,
                          TARGETS_D,
                          ],
@@ -135,6 +135,8 @@ def create_folders():
                  OUTPUT: [AUCOME_D,
                           BLASTP_D,
                           HOLOBIONT_D,
+                          {NETWORK_D: [PADMET_D,
+                                       SBML_D]},
                           {MENECO_D: [FILTERED_D,
                                       TOOL_OUTPUTS_D,
                                       TSV_D]}

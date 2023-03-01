@@ -13,8 +13,8 @@ INPUT FILES TO ADD :
         |- Holobiont
             |- reactions.tsv : File reactions.tsv obtained with compare padmet from holobiont networks
             |- group_template.tsv (opt) : File of group template for group species selection
-        |- Network
-            |- <sp>.padmet : Network in ".padmet" for gap filling
+        |- Networks
+            |- <sp>.padmet : Networks in ".padmet" for gap filling
         |- Seeds
             |- <seeds>.tsv : Seeds in ".tsv" (artefacts included)
             |- <artefacts>.tsv : Artefacts in .tsv format
@@ -23,10 +23,10 @@ INPUT FILES TO ADD :
             |- <sp>.fna (opt) : Species genome if tblastn
 """
 # IMPORTS
-from files_generator import *
-from meneco_utils import *
-from stats_recap import *
-from meneco_validation_BlastP import meneco_validation_blast
+from meneval.files_generator import *
+from meneval.meneco_utils import *
+from meneval.stats_recap import *
+from meneval.meneco_validation_BlastP import meneco_validation_blast
 import os
 import shutil
 import argparse

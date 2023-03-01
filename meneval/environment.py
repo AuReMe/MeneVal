@@ -4,6 +4,7 @@ The initialisation will create all required folders.
 The check will verify if all the required files are placed in the corrects folders.
 """
 import os
+import logging
 from typing import Dict, List
 
 # BASE ENVIRONMENT =====================================================================================================
@@ -28,7 +29,7 @@ SBML_D = 'SBML'
 PADMET_D = 'PADMET'
 
 FILTERED_D = 'Filtered_TSV'
-TOOL_OUTPUTS_D = 'Tool_outputs'
+TOOL_OUTPUTS_D = 'Json_outputs'
 
 # FILES
 REACTIONS_TSV = 'reactions.tsv'
@@ -68,9 +69,9 @@ def get_file_from_ext(path: str, ext: str):
     """
     files = [x for x in os.listdir(path) if x.endswith(ext)]
     if len(files) == 0:
-        print(f'No file with the extension {ext} in path {path}')
+        logging.info(f'No file with the extension {ext} in path {path}')
     elif len(files) > 1:
-        print(f'More than 1 file with the extension {ext} in path {path}')
+        logging.info(f'More than 1 file with the extension {ext} in path {path}')
     else:
         return os.path.join(path, files[0])
 
@@ -123,6 +124,9 @@ FINAL_GF_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'5_gapfillin
 def create_folders():
     """ Creates all the input and outputs folders required for the workflow
     """
+    logging.info('Running init step : creating directories :\n'
+                 '=========================================\n')
+
     dir_archi = {INPUT: [AUCOME_D,
                          DATABASE_D,
                          HOLOBIONT_D,
@@ -144,6 +148,8 @@ def create_folders():
                  }
     create_dir_rec(dir_archi)
 
+    logging.info('\n--------------\nInit step done\n')
+
 
 def create_dir_rec(dir_dict: Dict[str, List[str or Dict[...]]], path: str = ''):
     """ Create directories from dictionary in a path recursively
@@ -159,17 +165,17 @@ def create_dir_rec(dir_dict: Dict[str, List[str or Dict[...]]], path: str = ''):
         parent_path = os.path.join(path, parent_rep)
         if not os.path.exists(parent_path):
             os.mkdir(parent_path)
-            print(f'{parent_path} created')
+            logging.info(f'{parent_path} created')
         else:
-            print(f'{parent_path} already exists')
+            logging.info(f'{parent_path} already exists')
         for child in child_list:
             if type(child) == str:
                 child_path = os.path.join(path, parent_rep, child)
                 if not os.path.exists(child_path):
                     os.mkdir(child_path)
-                    print(f'{child_path} created')
+                    logging.info(f'{child_path} created')
                 else:
-                    print(f'{child_path} already exists')
+                    logging.info(f'{child_path} already exists')
             else:
                 create_dir_rec(child, os.path.join(path, parent_rep))
 
@@ -199,20 +205,23 @@ def check_required_files():
     files_aucome = [os.path.join(INPUT, AUCOME_D, GROUPS_TSV),
                     os.path.join(INPUT, AUCOME_D, REACTIONS_TSV)]
 
+    logging.info('Running Check step\n'
+                 '==================\n')
+
     for file in files_required:
         if not os.path.exists(file):
             raise OSError(f'No file {file} found')
 
     for file in files_blastp:
         if not os.path.exists(file):
-            print('Not all files found to run the blastp step, add it if you want to run this step')
+            logging.info('Not all files found to run the blastp step, add it if you want to run this step')
 
     for file in files_holobiont:
         if not os.path.exists(file):
-            print('Not all files found to run the holobiont step, add it if you want to run this step')
+            logging.info('Not all files found to run the holobiont step, add it if you want to run this step')
 
     for file in files_aucome:
         if not os.path.exists(file):
-            print('Not all files found to run the aucome step, add it if you want to run this step')
+            logging.info('Not all files found to run the aucome step, add it if you want to run this step')
 
-    print('All files required found -> Check passed')
+    logging.info('All files required found\n\n---------------\nCheck step done\n')

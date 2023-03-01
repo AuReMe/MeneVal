@@ -1,4 +1,4 @@
-from meneval.environment import *
+from environment import *
 from typing import Tuple
 import meneco
 import json

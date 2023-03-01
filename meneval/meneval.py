@@ -23,10 +23,10 @@ INPUT FILES TO ADD :
             |- <sp>.fna (opt) : Species genome if tblastn
 """
 # IMPORTS
-from meneval.files_generator import *
-from meneval.meneco_utils import *
-from meneval.stats_recap import *
-from meneval.meneco_validation_BlastP import meneco_validation_blast
+from files_generator import *
+from meneco_utils import *
+from stats_recap import *
+from meneco_validation_BlastP import meneco_validation_blast
 import os
 import shutil
 import argparse

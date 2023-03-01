@@ -1,6 +1,6 @@
 import json
 from padmet.utils.connection.sbml_to_curation_form import convert_from_coded_id
-from meneval.environment import *
+from environment import *
 
 
 HEADER_NB = ['Nb not producible', 'Nb not constructable', 'Nb constructible', 'Nb essential', 'Nb minimal',

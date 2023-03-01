@@ -1,4 +1,4 @@
-from meneval.environment import *
+from environment import *
 import os
 from padmet.utils.connection.sbmlGenerator import compound_to_sbml, padmet_to_sbml
 

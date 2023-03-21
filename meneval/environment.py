@@ -99,8 +99,8 @@ DB_SBML = os.path.join(INPUT, DATABASE_D, f'database{SBML_EXT}')
 # START NETWORKS
 
 MEDIUM_NW = os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'1_medium{PADMET_EXT}')
-BASE_NW = {PADMET_D: os.path.join(INPUT, NETWORK_D, PADMET_D, f'1_base{PADMET_EXT}'),
-           SBML_D: os.path.join(INPUT, NETWORK_D, SBML_D, f'1_base{SBML_EXT}')}
+BASE_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'1_base{PADMET_EXT}'),
+           SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'1_base{SBML_EXT}')}
 
 # BLASTP GAPFILLING NETWORKS
 BLASTP_GF_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'2_gapfilling_blastp{PADMET_EXT}'),

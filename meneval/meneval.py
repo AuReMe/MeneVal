@@ -27,6 +27,7 @@ from files_generator import *
 from meneco_utils import *
 from stats_recap import *
 from meneco_validation_BlastP import meneco_validation_blast
+from meneco_validation_networks import meneco_validation_networks
 import os
 import shutil
 import argparse
@@ -90,8 +91,9 @@ def holobiont_step(meneco_tsv, meneco_filtered):
     name = 'Holobiont'
     output = os.path.join(OUTPUT, HOLOBIONT_D)
     reactions_tsv = os.path.join(INPUT, HOLOBIONT_D, REACTIONS_TSV)
-    os.system(f'python meneco_validation_networks.py -m {meneco_tsv} -o {output} -rxn {reactions_tsv} -n {name}')
-
+    # Run function
+    meneco_validation_networks(name, output, meneco_tsv, reactions_tsv)
+    # Move filtered tsv output file in correct path
     os.rename(os.path.join(output, 'meneco_output_filtered.tsv'),
               meneco_filtered)
 
@@ -102,9 +104,9 @@ def aucome_step(meneco_tsv, meneco_filtered):
     output = os.path.join(OUTPUT, AUCOME_D)
     reactions_tsv = os.path.join(INPUT, AUCOME_D, REACTIONS_TSV)
     group_template = os.path.join(INPUT, AUCOME_D, GROUPS_TSV)
-    os.system(f'python meneco_validation_networks.py -m {meneco_tsv} -o {output} -rxn {reactions_tsv} -n {name} '
-              f'-gf {group_template} -g {GROUP}')
-
+    # Run function
+    meneco_validation_networks(name, output, meneco_tsv, reactions_tsv, group_template, GROUP)
+    # Move filtered tsv output file in correct path
     os.rename(os.path.join(output, 'meneco_output_filtered.tsv'),
               meneco_filtered)
 

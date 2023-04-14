@@ -26,8 +26,8 @@ INPUT FILES TO ADD :
 from files_generator import *
 from meneco_utils import *
 from stats_recap import *
-from meneco_validation_BlastP import meneco_validation_blast
-from meneco_validation_networks import meneco_validation_networks
+from validation_BlastP import validation_blastp
+from validation_networks import validation_networks
 import os
 import shutil
 import argparse
@@ -80,7 +80,7 @@ def blastp_step(meneco_tsv, meneco_filtered):
     species_proteome = get_file_from_ext(os.path.join(INPUT, SPECIES_D), FAA_EXT)
     species_genome = get_file_from_ext(os.path.join(INPUT, SPECIES_D), '.fna')
     # Run function
-    meneco_validation_blast(meneco_tsv, output, db_padmet, prot_fasta, species_proteome, species_genome)
+    validation_blastp(meneco_tsv, output, db_padmet, prot_fasta, species_proteome, species_genome)
     # Move filtered tsv output file in correct path
     os.rename(os.path.join(output, 'results', 'meneco_output_filtered.tsv'),
               meneco_filtered)
@@ -92,7 +92,7 @@ def holobiont_step(meneco_tsv, meneco_filtered):
     output = os.path.join(OUTPUT, HOLOBIONT_D)
     reactions_tsv = os.path.join(INPUT, HOLOBIONT_D, REACTIONS_TSV)
     # Run function
-    meneco_validation_networks(name, output, meneco_tsv, reactions_tsv)
+    validation_networks(name, output, meneco_tsv, reactions_tsv)
     # Move filtered tsv output file in correct path
     os.rename(os.path.join(output, 'meneco_output_filtered.tsv'),
               meneco_filtered)
@@ -105,7 +105,7 @@ def aucome_step(meneco_tsv, meneco_filtered):
     reactions_tsv = os.path.join(INPUT, AUCOME_D, REACTIONS_TSV)
     group_template = os.path.join(INPUT, AUCOME_D, GROUPS_TSV)
     # Run function
-    meneco_validation_networks(name, output, meneco_tsv, reactions_tsv, group_template, GROUP)
+    validation_networks(name, output, meneco_tsv, reactions_tsv, group_template, GROUP)
     # Move filtered tsv output file in correct path
     os.rename(os.path.join(output, 'meneco_output_filtered.tsv'),
               meneco_filtered)

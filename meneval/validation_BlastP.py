@@ -41,7 +41,7 @@ def get_directories(output):
     blast_res_file = os.path.join(res_dir, 'blast_results.tsv')
     rxn_prot_file = os.path.join(res_dir, 'rxn_prot.tsv')
 
-    log_file = os.path.join(output, 'meneco_validation.log')
+    log_file = os.path.join(output, 'blastp_validation.log')
 
     return seq_dir, res_dir, blast_res_file, rxn_prot_file, log_file
 
@@ -275,7 +275,7 @@ def create_rxn_prot_tsv(rxn_prot_dict, rxn_prot_file):
 
 # MAIN FUNCTION ========================================================================================================
 
-def meneco_validation_blast(meneco_tsv, output, db_padmet, prot_fasta, species_proteome, species_genome=None):
+def validation_blastp(meneco_tsv, output, db_padmet, prot_fasta, species_proteome, species_genome=None):
     """Runs the Meneco validation pipeline :
     1 - Extract the list of the union of reactions found in solution by Meneco from the file meneco_output.tsv.
     2 - Create a dictionary associating to each reaction the set of Uniprot IDs associated to it in the

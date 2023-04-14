@@ -34,7 +34,7 @@ def init_res_file(name_species: str, output: str):
 
 # Init logger
 def init_logger(output: str):
-    log_file = os.path.join(output, 'meneco_validation.log')
+    log_file = os.path.join(output, 'networks_validation.log')
     logging.basicConfig(filename=log_file, level=logging.INFO, format='%(message)s')
 
 
@@ -96,7 +96,7 @@ def create_new_meneco_tsv(kept_rxn: Set[str], name_species: str, output: str, me
 
 # MAIN FUNCTION ========================================================================================================
 
-def meneco_validation_networks(name_species: str, output: str, meneco_tsv: str, reactions_file: str,
+def validation_networks(name_species: str, output: str, meneco_tsv: str, reactions_file: str,
                                group_file: str = None, group: str = None):
     init_logger(output)
     logging.info(f'Start searching for presence in {name_species} of reactions from Meneco output\n'

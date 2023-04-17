@@ -90,11 +90,10 @@ def holobiont_step(meneco_tsv, meneco_filtered):
     name = 'Holobiont'
     output = os.path.join(OUTPUT, HOLOBIONT_D)
     reactions_tsv = os.path.join(INPUT, HOLOBIONT_D, REACTIONS_TSV)
-    # Run function
-    validation_networks(name, output, meneco_tsv, reactions_tsv)
-    # Move filtered tsv output file in correct path
-    os.rename(os.path.join(output, 'meneco_output_filtered.tsv'),
-              meneco_filtered)
+    # Run functions
+    rxn_list = extract_rxn_from_meneco(meneco_tsv)
+    kept_rxn_set = validation_networks(name, output, rxn_list, reactions_tsv)
+    create_new_meneco_tsv(meneco_tsv, kept_rxn_set, meneco_filtered, f'Potential {name} source')
 
 
 # 3RD VALIDATION
@@ -104,10 +103,9 @@ def aucome_step(meneco_tsv, meneco_filtered):
     reactions_tsv = os.path.join(INPUT, AUCOME_D, REACTIONS_TSV)
     group_template = os.path.join(INPUT, AUCOME_D, GROUPS_TSV)
     # Run function
-    validation_networks(name, output, meneco_tsv, reactions_tsv, group_template, GROUP)
-    # Move filtered tsv output file in correct path
-    os.rename(os.path.join(output, 'meneco_output_filtered.tsv'),
-              meneco_filtered)
+    rxn_list = extract_rxn_from_meneco(meneco_tsv)
+    kept_rxn_set = validation_networks(name, output, rxn_list, reactions_tsv, group_template, GROUP)
+    create_new_meneco_tsv(meneco_tsv, kept_rxn_set, meneco_filtered, f'Potential {name} source')
 
 
 def final_step(meneco_tsv, meneco_filtered):

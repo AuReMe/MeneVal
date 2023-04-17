@@ -2,7 +2,7 @@
 import os.path
 import logging
 
-from typing import List, Set
+from typing import List
 from aucomana.utils.reactions import Reactions
 from aucomana.utils.utils import get_grp_set
 
@@ -40,26 +40,6 @@ def init_logger(output: str):
 
 # FUNCTIONS ============================================================================================================
 
-def extract_rxn_from_meneco(meneco_tsv: str) -> List[str]:
-    """Extract the list of reactions corresponding to the union of reactions from solutions found by Meneco.
-    The extraction is done from a meneco_output.tsv file created with padmet enhance_meneco_output.
-
-    Returns
-    -------
-    List[str]
-        List of reactions
-    """
-    logging.info('Extracting reactions from Meneco output')
-    rxn_list = list()
-    with open(meneco_tsv, 'r') as meneco:
-        for line in meneco:
-            rxn = line.split('\t')[0]
-            rxn_list.append(rxn)
-    del rxn_list[0]
-    logging.info(f'Total of {len(rxn_list)} reactions\n')
-    return rxn_list
-
-
 def write_res(rxn, bact_pres, res_file: str):
     args_list = [rxn, bact_pres[0][0], round(bact_pres[0][1] * 100, 2), ';'.join(bact_pres[1])]
     args_list = [str(x) for x in args_list]
@@ -67,45 +47,17 @@ def write_res(rxn, bact_pres, res_file: str):
         f.write('\n' + '\t'.join(args_list))
 
 
-def create_new_meneco_tsv(kept_rxn: Set[str], name_species: str, output: str, meneco_tsv: str):
-    """Create a new Meneco tsv output keeping only the reactions that led to a blast match.
-
-    Parameters
-    ----------
-    kept_rxn : Set[str]
-        set of reactions to keep in the Meneco output.
-    name_species : str
-        type of species considered
-    output : str
-        path to the output folder
-    meneco_tsv : str
-        Meneco results in TSV format (output from enhanced_meneco_output in padmet)
-    """
-    logging.info('\nCreation of filtered Meneco tsv output file')
-    new_meneco = os.path.join(output, 'meneco_output_filtered.tsv')
-    with open(meneco_tsv, 'r') as in_meneco, open(new_meneco, 'w') as out_meneco:
-        for line in in_meneco:
-            if line.startswith('idRef'):
-                out_meneco.write(line)
-            elif line.split('\t')[0] in kept_rxn:
-                line = line.split('\t')
-                line[-2] = f'Potential {name_species} source'
-                out_meneco.write('\t'.join(line))
-    logging.info(f'Meneco tsv output file saved in : {new_meneco}')
-
-
 # MAIN FUNCTION ========================================================================================================
 
-def validation_networks(name_species: str, output: str, meneco_tsv: str, reactions_file: str,
-                               group_file: str = None, group: str = None):
+def validation_networks(name_species: str, output: str, rxn_list: List[str], reactions_file: str,
+                        group_file: str = None, group: str = None):
     init_logger(output)
     logging.info(f'Start searching for presence in {name_species} of reactions from Meneco output\n'
                  '======================================================================================\n')
     res_file = init_res_file(name_species, output)
     rxn_instance = create_rxn_instance(reactions_file, group_file, group)
 
-    rxn_l = extract_rxn_from_meneco(meneco_tsv)
-    rxn_pres_dict = rxn_instance.get_rxn_presence(rxn_l)
+    rxn_pres_dict = rxn_instance.get_rxn_presence(rxn_list)
     kept_rxn_set = set()
     for rxn, rxn_pres in rxn_pres_dict.items():
         if rxn_pres[0][0] != 0:
@@ -114,6 +66,6 @@ def validation_networks(name_species: str, output: str, meneco_tsv: str, reactio
 
     logging.info(f'{len(kept_rxn_set)} reactions in {name_species} : {", ".join(kept_rxn_set)}\n'
                  f'Details in {res_file} file.')
-    create_new_meneco_tsv(kept_rxn_set, name_species, output, meneco_tsv)
     logging.info(f'\n================\n'
                  f'End of selection')
+    return kept_rxn_set

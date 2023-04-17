@@ -1,8 +1,54 @@
 from environment import *
-from typing import Tuple
+from typing import Tuple, Set
 import meneco
 import json
 import logging
+
+
+def extract_rxn_from_meneco(meneco_tsv: str) -> List[str]:
+    """Extract the list of reactions corresponding to the union of reactions from solutions found by Meneco.
+    The extraction is done from a meneco_output.tsv file created with padmet enhance_meneco_output.
+
+    Returns
+    -------
+    List[str]
+        List of reactions
+    """
+    logging.info('Extracting reactions from Meneco output')
+    rxn_list = list()
+    with open(meneco_tsv, 'r') as m_tsv:
+        for line in m_tsv:
+            rxn = line.split('\t')[0]
+            rxn_list.append(rxn)
+    del rxn_list[0]
+    logging.info(f'Total of {len(rxn_list)} reactions\n')
+    return rxn_list
+
+
+def create_new_meneco_tsv(meneco_tsv: str, kept_rxn: Set[str], output: str, message: str):
+    """Create a new Meneco tsv output keeping only the reactions that led to a blast match.
+
+    Parameters
+    ----------
+    meneco_tsv: str
+        Meneco results in TSV format (output from enhanced_meneco_output in padmet)
+    kept_rxn : Set[str]
+        set of reactions to keep in the Meneco output.
+    output: str
+        Directory to store results
+    message: str
+        Comment for adding the reaction
+    """
+    logging.info('\nCreation of filtered Meneco tsv output file')
+    with open(meneco_tsv, 'r') as in_meneco, open(output, 'w') as out_meneco:
+        for line in in_meneco:
+            if line.startswith('idRef'):
+                out_meneco.write(line)
+            elif line.split('\t')[0] in kept_rxn:
+                line = line.split('\t')
+                line[-2] = message
+                out_meneco.write('\t'.join(line))
+    logging.info(f'Meneco tsv output file saved in : {output}')
 
 
 def get_meneco_files(num: int) -> Tuple[str, str, str]:

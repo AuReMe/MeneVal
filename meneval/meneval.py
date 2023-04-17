@@ -79,11 +79,10 @@ def blastp_step(meneco_tsv, meneco_filtered):
     prot_fasta = get_file_from_ext(os.path.join(INPUT, DATABASE_D), FASTA_EXT)
     species_proteome = get_file_from_ext(os.path.join(INPUT, SPECIES_D), FAA_EXT)
     species_genome = get_file_from_ext(os.path.join(INPUT, SPECIES_D), '.fna')
-    # Run function
-    validation_blastp(meneco_tsv, output, db_padmet, prot_fasta, species_proteome, species_genome)
-    # Move filtered tsv output file in correct path
-    os.rename(os.path.join(output, 'results', 'meneco_output_filtered.tsv'),
-              meneco_filtered)
+    # Run functions
+    rxn_list = extract_rxn_from_meneco(meneco_tsv)
+    kept_rxn_set = validation_blastp(rxn_list, output, db_padmet, prot_fasta, species_proteome, species_genome)
+    create_new_meneco_tsv(meneco_tsv, kept_rxn_set, meneco_filtered, 'Gap-filling BlastP hit')
 
 
 # 2ND VALIDATION

@@ -1,21 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-Description: Filter the reactions found in solution by Meneco to only keep reactions that lead to a Blast match of the
+Description: Filter a list of reactions to only keep reactions that lead to a Blast match of the
     proteins associated with the reaction in MetaCyc database against the proteome (or the genome in option).
 
     Pipeline steps :
-    1 - Extract the list of the union of reactions found in solution by Meneco from the file meneco_output.tsv.
-    2 - Create a dictionary associating to each reaction the set of Uniprot IDs associated to it in the MetaCyc padmet
+    1 - Create a dictionary associating to each reaction the set of Uniprot IDs associated to it in the MetaCyc padmet
         xrefs.
-    3 - For each Uniprot ID :
-        3.1 - Extract its associated protein sequence from the protein-seq-ids-reduced-70.fasta file.
-        3.2 - Perform a Blastp of this sequence against the species proteome and if there is a match write the result to
+    2 - For each Uniprot ID :
+        2.1 - Extract its associated protein sequence from the protein-seq-ids-reduced-70.fasta file.
+        2.2 - Perform a Blastp of this sequence against the species proteome and if there is a match write the result to
             the blast_results.tsv file.
-        3.3 - If there was no match and the Tblastn option is True: execute a tblastn of this sequence against the
+        2.3 - If there was no match and the Tblastn option is True: execute a tblastn of this sequence against the
             genome of the species and if there is a match write the result in the blast_results.tsv file.
-        3.4 - If there was a match during the Blastp or Tblastn: add the reaction associated with the Uniprot ID to the
+        2.4 - If there was a match during the Blastp or Tblastn: add the reaction associated with the Uniprot ID to the
             set of reactions to be kept.
-    4. Create a new meneco_output_filtered.tsv file retaining only the reaction set that led to a blast match.
+    4. Returns the reaction set that led to a blast match.
 """
 import os
 import logging

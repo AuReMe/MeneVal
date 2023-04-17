@@ -23,11 +23,11 @@ INPUT FILES TO ADD :
             |- <sp>.fna (opt) : Species genome if tblastn
 """
 # IMPORTS
-from files_generator import *
-from meneco_utils import *
-from stats_recap import *
-from validation_BlastP import validation_blastp
-from validation_networks import validation_networks
+from meneval.files_generator import *
+from meneval.meneco_utils import *
+from meneval.stats_recap import *
+from meneval.validation_BlastP import validation_blastp
+from meneval.validation_networks import validation_networks
 import os
 import shutil
 import argparse
@@ -35,33 +35,24 @@ import logging
 
 
 # ARGUMENTS
-def get_command_line_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--init', action='store_true', required=False, help='Init environment')
-    parser.add_argument('--check', action='store_true', required=False, help='Check for required input files')
-    parser.add_argument('--files', action='store_true', required=False, help='generate additional required input files')
-    parser.add_argument('--blastp', action='store_true', required=False, help='Runs blastp step')
-    parser.add_argument('--holobiont', action='store_true', required=False, help='Runs holobiont step')
-    parser.add_argument('--aucome', action='store_true', required=False, help='Runs Aucome step')
-    parser.add_argument('--group', type=str, required=False, metavar='group name', help='Group name for aucome step')
-    parser.add_argument('--fill', action='store_true', required=False, help='Runs fill step')
-    parser.add_argument('--workflow', action='store_true', required=False, help='Runs all steps')
-    args = parser.parse_args()
-    return args.init, args.check, args.files, args.blastp, args.holobiont, args.aucome, args.group, args.fill, \
-        args.workflow
+# def get_command_line_args():
+#     parser = argparse.ArgumentParser()
+#     parser.add_argument('--init', action='store_true', required=False, help='Init environment')
+#     parser.add_argument('--check', action='store_true', required=False, help='Check for required input files')
+#     parser.add_argument('--files', action='store_true', required=False, help='generate additional required input files')
+#     parser.add_argument('--blastp', action='store_true', required=False, help='Runs blastp step')
+#     parser.add_argument('--holobiont', action='store_true', required=False, help='Runs holobiont step')
+#     parser.add_argument('--aucome', action='store_true', required=False, help='Runs Aucome step')
+#     parser.add_argument('--group', type=str, required=False, metavar='group name', help='Group name for aucome step')
+#     parser.add_argument('--fill', action='store_true', required=False, help='Runs fill step')
+#     parser.add_argument('--workflow', action='store_true', required=False, help='Runs all steps')
+#     args = parser.parse_args()
+#     return args.init, args.check, args.files, args.blastp, args.holobiont, args.aucome, args.group, args.fill, \
+#         args.workflow
 
 
-INIT, CHECK, FILES_GENERATION, BLASTP_STEP, HOLOBIONT_STEP, AUCOME_STEP, GROUP, FILL_STEP, WORKFLOW = \
-    get_command_line_args()
-
-if WORKFLOW:
-    INIT = False
-    CHECK = True
-    FILES_GENERATION = True
-    BLASTP_STEP = True
-    HOLOBIONT_STEP = True
-    AUCOME_STEP = True
-    FILL_STEP = True
+# INIT, CHECK, FILES_GENERATION, BLASTP_STEP, HOLOBIONT_STEP, AUCOME_STEP, GROUP, FILL_STEP, WORKFLOW = \
+#     get_command_line_args()
 
 
 # Init logger
@@ -97,14 +88,14 @@ def holobiont_step(meneco_tsv, meneco_filtered):
 
 
 # 3RD VALIDATION
-def aucome_step(meneco_tsv, meneco_filtered):
-    name = GROUP
+def aucome_step(meneco_tsv, meneco_filtered, group):
+    name = group
     output = os.path.join(OUTPUT, AUCOME_D)
     reactions_tsv = os.path.join(INPUT, AUCOME_D, REACTIONS_TSV)
     group_template = os.path.join(INPUT, AUCOME_D, GROUPS_TSV)
     # Run function
     rxn_list = extract_rxn_from_meneco(meneco_tsv)
-    kept_rxn_set = validation_networks(name, output, rxn_list, reactions_tsv, group_template, GROUP)
+    kept_rxn_set = validation_networks(name, output, rxn_list, reactions_tsv, group_template, group)
     create_new_meneco_tsv(meneco_tsv, kept_rxn_set, meneco_filtered, f'Potential {name} source')
 
 
@@ -112,7 +103,7 @@ def final_step(meneco_tsv, meneco_filtered):
     shutil.copy(meneco_tsv, meneco_filtered)
 
 
-def run_step(num):
+def run_step(num, group=None):
     # Get appropriated file
     names_list = ['BLASTP', 'HOLOBIONT', 'AUCOME', 'FILL']
     name = names_list[num - 1]
@@ -156,7 +147,7 @@ def run_step(num):
         if name == names_list[1]:
             holobiont_step(meneco_tsv, meneco_filtered)
         if name == names_list[2]:
-            aucome_step(meneco_tsv, meneco_filtered)
+            aucome_step(meneco_tsv, meneco_filtered, group)
         if name == names_list[3]:
             final_step(meneco_tsv, meneco_filtered)
     else:
@@ -179,33 +170,9 @@ def run_step(num):
     logging.info(f'\n-----------\nStep {num} Done\n')
 
 
-# INITIALIZATION AND CHECK =============================================================================================
-if INIT:
-    create_folders()
-if CHECK:
-    check_required_files()
-
-
-# GENERATE MENECO FILES NEEDED =========================================================================================
-if FILES_GENERATION:
+def generate_files():
     generate_seeds()
     generate_targets()
     generate_db_sbml()
     generate_base_networks()
     logging.info('All files needed created successfully')
-
-
-# RUN STEPS ============================================================================================================
-
-if BLASTP_STEP:
-    run_step(1)
-
-if HOLOBIONT_STEP:
-    run_step(2)
-
-if AUCOME_STEP:
-    run_step(3)
-
-if FILL_STEP:
-    run_step(4)
-    make_meneco_stats()

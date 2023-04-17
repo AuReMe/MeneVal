@@ -23,7 +23,7 @@ import padmet.classes.padmetSpec
 from padmet.classes.padmetSpec import PadmetSpec
 from Bio.Blast.Applications import NcbiblastpCommandline, NcbitblastnCommandline
 from Bio import SeqIO
-from typing import List, Set
+from typing import Set
 
 
 # CONSTANTS ============================================================================================================

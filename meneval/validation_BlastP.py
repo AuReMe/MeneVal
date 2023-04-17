@@ -229,20 +229,35 @@ def create_rxn_prot_tsv(rxn_prot_dict, rxn_prot_file):
 
 # MAIN FUNCTION ========================================================================================================
 
-def validation_blastp(rxn_list, output, db_padmet, prot_fasta, species_proteome, species_genome=None):
-    """Runs the Meneco validation pipeline :
-    1 - Extract the list of the union of reactions found in solution by Meneco from the file meneco_output.tsv.
-    2 - Create a dictionary associating to each reaction the set of Uniprot IDs associated to it in the
-        protein-seq-ids-reduced-70.dat file.
-    3 - For each Uniprot ID :
-        3.1 - Extract its associated protein sequence from the protein-seq-ids-reduced-70.seq file.
-        3.2 - Perform a Blastp of this sequence against the species proteome and if there is a match write the result to
+def validation_blastp(rxn_list: list[str], output: str, db_padmet: str, prot_fasta: str, species_proteome: str,
+                      species_genome: str = None) -> set[str]:
+    """
+    1 - Create a dictionary associating to each reaction the set of Uniprot IDs associated to it in the MetaCyc padmet
+        xrefs.
+    2 - For each Uniprot ID :
+        2.1 - Extract its associated protein sequence from the protein-seq-ids-reduced-70.fasta file.
+        2.2 - Perform a Blastp of this sequence against the species proteome and if there is a match write the result to
             the blast_results.tsv file.
-        3.3 - If there was no match and the Tblastn option is True: execute a tblastn of this sequence against the
+        2.3 - If there was no match and the Tblastn option is True: execute a tblastn of this sequence against the
             genome of the species and if there is a match write the result in the blast_results.tsv file.
-        3.4 - If there was a match during the Blastp or Tblastn: add the reaction associated with the Uniprot ID to the
+        2.4 - If there was a match during the Blastp or Tblastn: add the reaction associated with the Uniprot ID to the
             set of reactions to be kept.
-    4. Create a new meneco_output_filtered.tsv file retaining only the reaction set that led to a blast match.
+    4. Returns the reaction set that led to a blast match.
+
+    Parameters
+    ----------
+    rxn_list: list[str]
+        List of reaction to test : must be a MetaCyc id
+    output: str
+    db_padmet: str
+    prot_fasta: str
+    species_proteome: str
+    species_genome: str (default=None)
+
+    Returns
+    -------
+    set[str]
+        Set of the reactions that led to a blastp or tblastn match
     """
     padmet_spec = PadmetSpec(db_padmet)
     prot_fasta = SeqIO.to_dict(SeqIO.parse(prot_fasta, 'fasta'))

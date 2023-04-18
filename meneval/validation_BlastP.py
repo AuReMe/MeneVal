@@ -23,7 +23,7 @@ import padmet.classes.padmetSpec
 from padmet.classes.padmetSpec import PadmetSpec
 from Bio.Blast.Applications import NcbiblastpCommandline, NcbitblastnCommandline
 from Bio import SeqIO
-from typing import Set
+from typing import Set, List
 
 
 # CONSTANTS ============================================================================================================
@@ -229,8 +229,8 @@ def create_rxn_prot_tsv(rxn_prot_dict, rxn_prot_file):
 
 # MAIN FUNCTION ========================================================================================================
 
-def validation_blastp(rxn_list: list[str], output: str, db_padmet: str, prot_fasta: str, species_proteome: str,
-                      species_genome: str = None) -> set[str]:
+def validation_blastp(rxn_list: List[str], output: str, db_padmet: str, prot_fasta: str, species_proteome: str,
+                      species_genome: str = None) -> Set[str]:
     """
     1 - Create a dictionary associating to each reaction the set of Uniprot IDs associated to it in the MetaCyc padmet
         xrefs.

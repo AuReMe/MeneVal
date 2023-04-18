@@ -265,8 +265,8 @@ def validation_blastp(rxn_list: List[str], output: str, db_padmet: str, prot_fas
     seq_dir, res_dir, blast_res_file, rxn_prot_file, log_file = get_directories(output)
     init_logger(log_file)
 
-    logging.info('Start searching alignments from Meneco output\n'
-                 '=============================================\n')
+    logging.info('Start searching alignments\n'
+                 '==========================\n')
 
     # 2 - Get uniprot_ids linked to all these reactions
     logging.info('Start getting proteins linked to each reaction\n'

@@ -22,7 +22,7 @@ import padmet.classes.padmetSpec
 from padmet.classes.padmetSpec import PadmetSpec
 from Bio.Blast.Applications import NcbiblastpCommandline, NcbitblastnCommandline
 from Bio import SeqIO
-from typing import Set, List
+from typing import Set, List, Tuple, Dict
 
 
 # CONSTANTS ============================================================================================================
@@ -32,7 +32,27 @@ BLAST_HEADER = ["sseqid", "evalue", "bitscore", "pident", "length"]
 
 
 # ENVIRONMENT ==========================================================================================================
-def get_directories(output):
+def get_directories(output: str) -> Tuple[str, str, str, str, str]:
+    """ Returns the path to the main directories and files to manage
+
+    Parameters
+    ----------
+    output: str
+        Path of the parent output directory
+
+    Returns
+    -------
+    str
+        Directory to store fasta sequence of proteins
+    str
+        Directory to store results files
+    str
+        Path to the blast result file to write blast match results
+    str
+        Path to file indicating uniprot IDs linked to all reactions
+    str
+        Path to the log file
+    """
     seq_dir = os.path.join(output, 'sequences')
     res_dir = os.path.join(output, 'results')
 
@@ -44,7 +64,7 @@ def get_directories(output):
     return seq_dir, res_dir, blast_res_file, rxn_prot_file, log_file
 
 
-def init_logger(log_file):
+def init_logger(log_file: str):
     logging.basicConfig(filename=log_file, level=logging.INFO, format='%(message)s')
     # logging.basicConfig(filename=log_file, encoding='utf-8', level=logging.INFO, format='%(message)s') python v 3.9
 
@@ -219,7 +239,16 @@ def run_tblastn(prot_seq: str, uniprot_id: str, rxn: str, species_genome: str, s
     return False
 
 
-def create_rxn_prot_tsv(rxn_prot_dict, rxn_prot_file):
+def create_rxn_prot_tsv(rxn_prot_dict: Dict[str, Set[str]], rxn_prot_file: str):
+    """ Fill the file rxn_prot.tsv associating reaction to their associated uniprot IDs
+
+    Parameters
+    ----------
+    rxn_prot_dict: dict[str, set[str]]
+        Dictionary associating reaction to their associated uniprot IDs
+    rxn_prot_file: str
+        Path to the rxn_prot.tsv file
+    """
     with open(rxn_prot_file, 'w') as f:
         f.write('Rxn ID\tNb prot IDs\tProt IDs (sep=;)\n')
         for rxn, pid_set in rxn_prot_dict.items():

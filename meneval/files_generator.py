@@ -4,7 +4,19 @@ import logging
 from padmet.utils.connection.sbmlGenerator import compound_to_sbml, padmet_to_sbml
 
 
-def check_file_creation(file):
+def check_file_creation(file: str):
+    """ Checks if the file is created (if the file path exists) if not raises error
+
+    Parameters
+    ----------
+    file: str
+        Path of the file to check
+
+    Raises
+    -------
+    FileNotFoundError
+        If the path of the file is not found
+    """
     if os.path.exists(file):
         logging.info(f'{file} created')
     else:
@@ -13,7 +25,7 @@ def check_file_creation(file):
 
 
 def generate_targets():
-    """ In Targets directory, from the file targets.tsv creates the 3 files :
+    """ In Input/Targets directory, from the file targets.tsv creates the 3 files :
         - biomass.tsv
         - temp_targets.tsv
         _ targets.sbml
@@ -57,7 +69,7 @@ def generate_targets():
 
 
 def generate_seeds():
-    """ In Seeds directory, from seeds.tsv and artefacts.tsv file, creates the 3 files :
+    """ In Input/Seeds directory, from seeds.tsv and artefacts.tsv file, creates the 3 files :
         - seeds_medium.tsv
         - seeds_artefacts.tsv
         - seeds_artefacts.sbml
@@ -89,15 +101,18 @@ def generate_seeds():
 
 
 def generate_db_sbml():
+    """ In Input/DataBase directory from .padmet dataBase file, create file :
+            - database.sbml
+    """
     padmet_to_sbml(padmet=get_file_from_ext(os.path.join(INPUT, DATABASE_D), PADMET_EXT), output=DB_SBML)
     check_file_creation(DB_SBML)
 
 
 def generate_base_networks():
-    """ In Networks directory, files :
-            - 1_<SPECIES>_medium.padmet
-            - 1_<SPECIES>_base.padmet
-            - 1_<SPECIES>_base.sbml
+    """ In Output/Networks directory, create files :
+            - 1_medium.padmet
+            - 1_base.padmet
+            - 1_base.sbml
         """
     # Create 1_<SPECIES>_medium.padmet
     base_padmet = get_file_from_ext(os.path.join(INPUT, NETWORK_D), PADMET_EXT)

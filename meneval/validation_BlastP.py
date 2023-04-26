@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Description: Filter a list of reactions to only keep reactions that lead to a Blast match of the
     proteins associated with the reaction in MetaCyc database against the proteome (or the genome in option).

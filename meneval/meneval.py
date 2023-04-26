@@ -34,27 +34,6 @@ import argparse
 import logging
 
 
-# ARGUMENTS
-# def get_command_line_args():
-#     parser = argparse.ArgumentParser()
-#     parser.add_argument('--init', action='store_true', required=False, help='Init environment')
-#     parser.add_argument('--check', action='store_true', required=False, help='Check for required input files')
-#     parser.add_argument('--files', action='store_true', required=False, help='generate additional required input files')
-#     parser.add_argument('--blastp', action='store_true', required=False, help='Runs blastp step')
-#     parser.add_argument('--holobiont', action='store_true', required=False, help='Runs holobiont step')
-#     parser.add_argument('--aucome', action='store_true', required=False, help='Runs Aucome step')
-#     parser.add_argument('--group', type=str, required=False, metavar='group name', help='Group name for aucome step')
-#     parser.add_argument('--fill', action='store_true', required=False, help='Runs fill step')
-#     parser.add_argument('--workflow', action='store_true', required=False, help='Runs all steps')
-#     args = parser.parse_args()
-#     return args.init, args.check, args.files, args.blastp, args.holobiont, args.aucome, args.group, args.fill, \
-#         args.workflow
-
-
-# INIT, CHECK, FILES_GENERATION, BLASTP_STEP, HOLOBIONT_STEP, AUCOME_STEP, GROUP, FILL_STEP, WORKFLOW = \
-#     get_command_line_args()
-
-
 # Init logger
 LOG_FILE = os.path.join('meneco_validation.log')
 logging.basicConfig(filename=LOG_FILE, level=logging.INFO, format='%(message)s')
@@ -171,8 +150,12 @@ def run_step(num, group=None):
 
 
 def generate_files():
+    logging.info('Running files generation step :\n'
+                 '===============================\n')
     generate_seeds()
     generate_targets()
     generate_db_sbml()
     generate_base_networks()
-    logging.info('All files needed created successfully')
+    logging.info('\nAll files needed created successfully')
+    logging.info('\n--------------------------\nFiles generation step done\n')
+

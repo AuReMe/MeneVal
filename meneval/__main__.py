@@ -18,40 +18,40 @@ def get_command_line_args():
 
 
 def main():
-    INIT, CHECK, FILES_GENERATION, BLASTP_STEP, HOLOBIONT_STEP, AUCOME_STEP, GROUP, FILL_STEP, WORKFLOW = \
+    init, check, files_generation, blastp, holobiont, aucome, group, fill, workflow = \
         get_command_line_args()
 
-    if WORKFLOW:
-        INIT = False
-        CHECK = True
-        FILES_GENERATION = True
-        BLASTP_STEP = True
-        HOLOBIONT_STEP = True
-        AUCOME_STEP = True
-        FILL_STEP = True
+    if workflow:
+        init = False
+        check = True
+        files_generation = True
+        blastp = True
+        holobiont = True
+        aucome = True
+        fill = True
 
     # INITIALIZATION AND CHECK =========================================================================================
-    if INIT:
+    if init:
         create_folders()
-    if CHECK:
+    if check:
         check_required_files()
 
     # GENERATE MENECO FILES NEEDED =====================================================================================
-    if FILES_GENERATION:
+    if files_generation:
         generate_files()
 
     # RUN STEPS ========================================================================================================
 
-    if BLASTP_STEP:
+    if blastp:
         run_step(1)
 
-    if HOLOBIONT_STEP:
+    if holobiont:
         run_step(2)
 
-    if AUCOME_STEP:
-        run_step(3, group=GROUP)
+    if aucome:
+        run_step(3, group=group)
 
-    if FILL_STEP:
+    if fill:
         run_step(4)
         make_meneco_stats()
 

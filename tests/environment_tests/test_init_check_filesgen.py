@@ -6,12 +6,12 @@ import unittest
 class Test(unittest.TestCase):
 
     def setUp(self):
-        os.system('python ../../meneval/meneval.py --init')
+        os.system('meneval --init')
 
-    def tearDown(self):
-        self.addCleanup(shutil.rmtree, 'Input')
-        self.addCleanup(shutil.rmtree, 'Output')
-        self.addCleanup(os.remove, 'meneco_validation.log')
+    # def tearDown(self):
+    #     shutil.rmtree('Input')
+    #     shutil.rmtree('Output')
+    #     os.remove('meneco_validation.log')
 
     def test_init(self):
         paths = ['Input',
@@ -55,4 +55,10 @@ class Test(unittest.TestCase):
 
     def test_check(self):
         self.move_files()
-        os.system('python ../../meneval/meneval.py --check')
+        os.system('meneval --check')
+
+    def test_files_generator(self):
+        self.move_files()
+        os.system('meneval --check')
+        os.system('meneval --files')
+

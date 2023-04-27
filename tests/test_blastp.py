@@ -54,8 +54,8 @@ class Test(unittest.TestCase):
     def setUp(self):
         os.mkdir(OUTPUT)
 
-    def tearDown(self):
-        shutil.rmtree(OUTPUT)
+    # def tearDown(self):
+    #     shutil.rmtree(OUTPUT)
 
     def test_get_directories(self):
         expected_directories = ('Output_blastP/sequences',
@@ -168,5 +168,8 @@ class Test(unittest.TestCase):
 
         with open(blast_res_file, 'r') as res_file:
             self.assertEqual(res_file.readlines(), exp_line)
+
+    def test_validation_blastp(self):
+        validation_blastp(RXN_LIST, OUTPUT, DB_PADMET, PROT_FASTA_FILE, SPECIES_PROTEOME, SPECIES_GENOME)
 
 

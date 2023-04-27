@@ -64,11 +64,6 @@ def get_directories(output: str) -> Tuple[str, str, str, str, str]:
     return seq_dir, res_dir, blast_res_file, rxn_prot_file, log_file
 
 
-def init_logger(log_file: str):
-    logging.basicConfig(filename=log_file, level=logging.INFO, format='%(message)s')
-    # logging.basicConfig(filename=log_file, encoding='utf-8', level=logging.INFO, format='%(message)s') python v 3.9
-
-
 # FUNCTIONS ============================================================================================================
 
 def get_uniprot_ids_from_rxn(rxn: str, padmet_spec: padmet.classes.padmetSpec.PadmetSpec) -> Set[str]:
@@ -291,7 +286,7 @@ def validation_blastp(rxn_list: List[str], output: str, db_padmet: str, prot_fas
     prot_fasta = SeqIO.to_dict(SeqIO.parse(prot_fasta, 'fasta'))
     tblastn = species_genome is not None
     seq_dir, res_dir, blast_res_file, rxn_prot_file, log_file = get_directories(output)
-    init_logger(log_file)
+    logging.basicConfig(filename=log_file, level=logging.INFO, format='%(message)s', force=True)
 
     logging.info('Start searching alignments\n'
                  '==========================\n')

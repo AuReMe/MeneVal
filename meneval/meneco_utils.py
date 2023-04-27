@@ -67,16 +67,21 @@ def run_meneco(network: str, output: str):
         outfile.write(json_output)
 
 
-def meneco_out_txt_to_tsv(output_txt: str, output_tsv: str):
+def meneco_json_to_tsv(output_json: str, output_tsv: str):
     db = get_file_from_ext(os.path.join(INPUT, DATABASE_D), PADMET_EXT)
-    os.system(f'padmet enhanced_meneco_output --meneco={output_txt} --padmetRef={db} --output={output_tsv} --json -v')
+    os.system(f'padmet enhanced_meneco_output '
+              f'--meneco={output_json} '
+              f'--padmetRef={db} '
+              f'--output={output_tsv} '
+              f'--json '
+              f'-v')
 
 
 def add_rxn_to_nw(prev_nw: str, gap_filled_nw: str, rxn_to_add: str):
     db = get_file_from_ext(os.path.join(INPUT, DATABASE_D), PADMET_EXT)
     os.system(f'padmet manual_curation --padmetSpec={prev_nw} --data={rxn_to_add} --padmetRef={db} '
               f'--output={gap_filled_nw} --tool=MENECO --category=GAP-FILLING -v')
-    print(f'{gap_filled_nw} created.')
+    logging.info(f'{gap_filled_nw} created.')
 
 
 def extract_genes_from_blast():

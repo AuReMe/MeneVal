@@ -28,9 +28,9 @@ from meneval.meneco_utils import *
 from meneval.stats_recap import *
 from meneval.validation_BlastP import validation_blastp
 from meneval.validation_networks import validation_networks
+import argparse
 import os
 import shutil
-import argparse
 import logging
 
 
@@ -94,7 +94,7 @@ def run_step(num, group=None):
            not os.path.exists(networks_rank[prev][PADMET_D]))):
         prev -= 1
         if prev == -1:
-            raise OSError(f'No padmet and sbml files found for running step {name}')
+            raise FileNotFoundError(f'No padmet and sbml files found for running step {name}')
 
     prev_network_sbml = networks_rank[prev][SBML_D]
     prev_network_padmet = networks_rank[prev][PADMET_D]
@@ -109,13 +109,15 @@ def run_step(num, group=None):
         run_meneco(prev_network_sbml, meneco_out)
     else:
         logging.info(f'{meneco_out} file found, passing meneco run.')
+    check_file_creation(meneco_out)
 
     # TSV output creation
     logging.info(f'\nCreate Meneco tsv output :\n{40 * "-"}\n')
     if not os.path.exists(meneco_tsv):
-        meneco_out_txt_to_tsv(meneco_out, meneco_tsv)
+        meneco_json_to_tsv(meneco_out, meneco_tsv)
     else:
         logging.info(f'{meneco_tsv} file found, passing tsv creation.')
+    check_file_creation(meneco_tsv)
 
     # Validation step
     logging.info(f'\nRunning {name} validation step :\n{40 * "-"}\n')
@@ -131,6 +133,7 @@ def run_step(num, group=None):
             final_step(meneco_tsv, meneco_filtered)
     else:
         logging.info(f'{meneco_filtered} file found, passing {name} validation.')
+    check_file_creation(meneco_filtered)
 
     # Add reactions to network
     logging.info(f'\nAdding reactions found to network :\n{40 * "-"}\n')
@@ -138,6 +141,7 @@ def run_step(num, group=None):
         add_rxn_to_nw(prev_network_padmet, dict_nw[PADMET_D], meneco_filtered)
     else:
         logging.info(f'{dict_nw[PADMET_D]} file found, passing adding reactions to network.')
+    check_file_creation(dict_nw[PADMET_D])
 
     # Create SBML network
     logging.info(f'\nConvert Padmet to SBML:\n{40 * "-"}\n')
@@ -145,6 +149,7 @@ def run_step(num, group=None):
         padmet_to_sbml(padmet=dict_nw[PADMET_D], output=dict_nw[SBML_D])
     else:
         logging.info(f'{dict_nw[SBML_D]} file found, passing convert Padmet to SBML.')
+    check_file_creation(dict_nw[SBML_D])
 
     logging.info(f'\n-----------\nStep {num} Done\n')
 

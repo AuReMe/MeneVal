@@ -134,14 +134,37 @@ class Test(unittest.TestCase):
               'QALDLVGKVFLDEGSPVLLEAPSYMGAIQAFRLQGPRFLTVPAGEEGPDLDALEEVLKRERPRFLYLIPSFQNPTGGLTPLPARKRLLQMVMERGLVVVED' \
               'DAYRELYFGEARLPSLFELAREAGYPGVIYLGSFSKVLSPGLRVAFAVAHPEALQKLVQAKQGADLHTPMLNQMLVHELLKEGFSERLERVRRVYREKAQA' \
               'MLHALDREVPKEVRYTRPKGGMFVWMELPKGLSAEGLFRRALEENVAFVPGGPFFANGGGENTLRLSYATLDREGIAEGVRRLGRALKGLLALV'
+
         res = run_blastp(seq, uni_id, rxn, SPECIES_PROTEOME, seq_dir, blast_res_file)
         self.assertTrue(res)
         self.assertTrue(os.path.exists(os.path.join(seq_dir, 'Q72LL6.fasta')))
+
         exp_line = ['Reaction\tUniprot ID\tSequence\tE value\tBit score\tIdentity (%)\tLength\tBlast method\n',
                     '2-AMINOADIPATE-AMINOTRANSFERASE-RXN\tQ72LL6\tc1863\t1.56e-46\t163\t30.890\t382\tBlastp\n',
                     '2-AMINOADIPATE-AMINOTRANSFERASE-RXN\tQ72LL6\tc3224\t2.03e-24\t101\t27.200\t375\tBlastp\n',
                     '2-AMINOADIPATE-AMINOTRANSFERASE-RXN\tQ72LL6\tc2916\t3.79e-15\t73.6\t23.824\t340\tBlastp\n',
                     '2-AMINOADIPATE-AMINOTRANSFERASE-RXN\tQ72LL6\tc2548\t9.03e-12\t63.2\t27.778\t234\tBlastp\n']
+
+        with open(blast_res_file, 'r') as res_file:
+            self.assertEqual(res_file.readlines(), exp_line)
+
+    def test_run_tblastn(self):
+        seq_dir, res_dir, blast_res_file, rxn_prot_file, log_file = get_directories(OUTPUT)
+        create_dirs_and_init_result_file(seq_dir, res_dir, blast_res_file)
+        rxn = '2-AMINOADIPATE-AMINOTRANSFERASE-RXN'
+        uni_id = 'UNIPROT:Q72LL6'
+        seq = 'MKPLSWSEAFGKGAGRIQASTIRELLKLTQRPGILSFAGGLPAPELFPKEEAAEAAARILREKGEVALQYSPTEGYAPLRAFVAEWIGVRPEEVLITTGSQ' \
+              'QALDLVGKVFLDEGSPVLLEAPSYMGAIQAFRLQGPRFLTVPAGEEGPDLDALEEVLKRERPRFLYLIPSFQNPTGGLTPLPARKRLLQMVMERGLVVVED' \
+              'DAYRELYFGEARLPSLFELAREAGYPGVIYLGSFSKVLSPGLRVAFAVAHPEALQKLVQAKQGADLHTPMLNQMLVHELLKEGFSERLERVRRVYREKAQA' \
+              'MLHALDREVPKEVRYTRPKGGMFVWMELPKGLSAEGLFRRALEENVAFVPGGPFFANGGGENTLRLSYATLDREGIAEGVRRLGRALKGLLALV'
+
+        res = run_tblastn(seq, uni_id, rxn, SPECIES_GENOME, seq_dir, blast_res_file)
+        self.assertTrue(res)
+        self.assertTrue(os.path.exists(os.path.join(seq_dir, 'Q72LL6.fasta')))
+
+        exp_line = ['Reaction\tUniprot ID\tSequence\tE value\tBit score\tIdentity (%)\tLength\tBlast method\n',
+                    '2-AMINOADIPATE-AMINOTRANSFERASE-RXN\tQ72LL6\tAE014075.1\t3.84e-38\t144\t32.222\t360\tTBlastN\n',
+                    '2-AMINOADIPATE-AMINOTRANSFERASE-RXN\tQ72LL6\tAE014075.1\t1.64e-18\t85.5\t26.997\t363\tTBlastN\n']
 
         with open(blast_res_file, 'r') as res_file:
             self.assertEqual(res_file.readlines(), exp_line)

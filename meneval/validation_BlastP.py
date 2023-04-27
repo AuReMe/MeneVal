@@ -108,6 +108,38 @@ def get_uniprot_ids_from_rxn(rxn: str, padmet_spec: padmet.classes.padmetSpec.Pa
     return uniprot_set
 
 
+def create_dirs_and_init_result_file(seq_dir, res_dir, blast_res_file):
+    """ Create the 'sequences' and 'results' directories if they don't exist and create the results file."""
+    # Directories creation
+    if not os.path.exists(seq_dir):
+        os.mkdir(seq_dir)
+    if not os.path.exists(res_dir):
+        os.mkdir(res_dir)
+
+    # Results file creation and initialization
+    f = open(blast_res_file, 'w')
+    f.write('\t'.join(['Reaction', 'Uniprot ID', 'Sequence', 'E value', 'Bit score', 'Identity (%)', 'Length',
+                       'Blast method\n']))
+    f.close()
+    logging.info(f'Blast results tsv file created in : {blast_res_file}')
+
+
+def create_rxn_prot_tsv(rxn_prot_dict: Dict[str, Set[str]], rxn_prot_file: str):
+    """ Fill the file rxn_prot.tsv associating reaction to their associated uniprot IDs
+
+    Parameters
+    ----------
+    rxn_prot_dict: dict[str, set[str]]
+        Dictionary associating reaction to their associated uniprot IDs
+    rxn_prot_file: str
+        Path to the rxn_prot.tsv file
+    """
+    with open(rxn_prot_file, 'w') as f:
+        f.write('Rxn ID\tNb prot IDs\tProt IDs (sep=;)\n')
+        for rxn, pid_set in rxn_prot_dict.items():
+            f.write(f'{rxn}\t{len(pid_set)}\t{";".join(pid_set)}\n')
+
+
 def get_uniprot_seq(uni_id: str, prot_fasta: dict) -> str:
     """Obtain the sequence associated with an Uniprot IDs from the line of the protein-seq-ids-reduced-70.fasta file.
 
@@ -130,22 +162,6 @@ def get_uniprot_seq(uni_id: str, prot_fasta: dict) -> str:
     except KeyError:
         logging.warning(f'\nNo sequence corresponding to {uni_id} in {prot_fasta} file.')
         return ''
-
-
-def create_dirs_and_init_result_file(seq_dir, res_dir, blast_res_file):
-    """ Create the 'sequences' and 'results' directories if they don't exist and create the results file."""
-    # Directories creation
-    if not os.path.exists(seq_dir):
-        os.mkdir(seq_dir)
-    if not os.path.exists(res_dir):
-        os.mkdir(res_dir)
-
-    # Results file creation and initialization
-    f = open(blast_res_file, 'w')
-    f.write('\t'.join(['Reaction', 'Uniprot ID', 'Sequence', 'E value', 'Bit score', 'Identity (%)', 'Length',
-                       'Blast method\n']))
-    f.close()
-    logging.info(f'Blast results tsv file created in : {blast_res_file}')
 
 
 def run_blastp(prot_seq: str, uniprot_id: str, rxn: str, species_proteome: str, seq_dir: str, blast_res_file: str) \
@@ -237,22 +253,6 @@ def run_tblastn(prot_seq: str, uniprot_id: str, rxn: str, species_genome: str, s
                 res_file.write('\t'.join([rxn, uniprot_id, match, 'TBlastN\n']))
         return True
     return False
-
-
-def create_rxn_prot_tsv(rxn_prot_dict: Dict[str, Set[str]], rxn_prot_file: str):
-    """ Fill the file rxn_prot.tsv associating reaction to their associated uniprot IDs
-
-    Parameters
-    ----------
-    rxn_prot_dict: dict[str, set[str]]
-        Dictionary associating reaction to their associated uniprot IDs
-    rxn_prot_file: str
-        Path to the rxn_prot.tsv file
-    """
-    with open(rxn_prot_file, 'w') as f:
-        f.write('Rxn ID\tNb prot IDs\tProt IDs (sep=;)\n')
-        for rxn, pid_set in rxn_prot_dict.items():
-            f.write(f'{rxn}\t{len(pid_set)}\t{";".join(pid_set)}\n')
 
 
 # MAIN FUNCTION ========================================================================================================

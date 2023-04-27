@@ -1,4 +1,6 @@
+import os.path
 import unittest
+import shutil
 from meneval.validation_BlastP import *
 
 # Parameters
@@ -16,14 +18,132 @@ RXN_LIST: List[str] = ['2-AMINOADIPATE-AMINOTRANSFERASE-RXN',
                        'RXN-5061',
                        'RXN-7970']
 OUTPUT: str = 'Output_blastP'
-DB_PADMET: str = 'Input_files_generated/DataBase/metacyc_26.0_prot70.padmet'
-PROT_FASTA: str = 'Input_files_generated/DataBase/proteins_seq_ids_reduced_70.fasta'
-SPECIES_PROTEOME: str = 'Input_files_generated/Species_seq/CFT073.faa'
-SPECIES_GENOME: str = 'Input_files_generated/Species_seq/CFT073.fna'
+DB_PADMET: str = 'Files_generated/Input/DataBase/metacyc_26.0_prot70.padmet'
+PROT_FASTA_FILE: str = 'Files_generated/Input/DataBase/proteins_seq_ids_reduced_70.fasta'
+SPECIES_PROTEOME: str = 'Files_generated/Input/Species_seq/CFT073.faa'
+SPECIES_GENOME: str = 'Files_generated/Input/Species_seq/CFT073.fna'
+
+PADMET_SPEC: padmet.classes.padmetSpec = PadmetSpec(DB_PADMET)
+PROT_FASTA = SeqIO.to_dict(SeqIO.parse(PROT_FASTA_FILE, 'fasta'))
+
+UNIPROT_IDS = {'2-AMINOADIPATE-AMINOTRANSFERASE-RXN': {'UNIPROT:P58350', 'UNIPROT:Q64602', 'UNIPROT:P53090',
+                                                       'PID:NP_746228.1', 'UNIPROT:Q72LL6'},
+               'HOMOCITRATE-SYNTHASE-RXN': {'UNIPROT:Q00853', 'UNIPROT:P54610', 'UNIPROT:Q01181',
+                                            'UNIPROT:Q8TKQ6', 'UNIPROT:Q4J989', 'UNIPROT:P05342',
+                                            'UNIPROT:O59390', 'UNIPROT:P70728', 'UNIPROT:Q00852',
+                                            'UNIPROT:O94225', 'UNIPROT:Q57926', 'UNIPROT:Q07179',
+                                            'UNIPROT:Q44290', 'UNIPROT:Q8TW28', 'UNIPROT:Q52070'},
+               'LYSINE--PYRUVATE-6-AMINOTRANSFERASE-RXN': set(),
+               'L-LYSINE-AMINOTRANSFERASE-RXN': {'UNIPROT:Q01767', 'UNIPROT:P63510', 'UNIPROT:Q5JEW1'},
+               'ORNITHINE-CYCLODEAMINASE-RXN': {'UNIPROT:Q59175', 'UNIPROT:Q88H32', 'UNIPROT:Q8YMD9',
+                                                'UNIPROT:J7SH14'},
+               'RXN-13722': {'UNIPROT:Q58667', 'UNIPROT:Q58409', 'UNIPROT:O27668', 'UNIPROT:Q9ZNE0',
+                             'UNIPROT:Q9ZND9', 'UNIPROT:O26917', 'UNIPROT:Q8TLF1'},
+               'RXN-16756': {'UNIPROT:P07702', 'UNIPROT:P40976', 'UNIPROT:O74298'},
+               'RXN-19380': {'UNIPROT:Q57564', 'UNIPROT:Q8TPT4'},
+               'RXN-21797': {'UNIPROT:Q2RJ79', 'UNIPROT:Q2RJ82', 'UNIPROT:Q2RJ84', 'UNIPROT:Q2RJ81',
+                             'UNIPROT:Q2RJ83', 'UNIPROT:Q2RJ80'},
+               'RXN-21991': set(),
+               'RXN-22438': set(),
+               'RXN-5061': set(),
+               'RXN-7970': {'UNIPROT:P40495', 'UNIPROT:Q58991', 'UNIPROT:Q5SIJ1', 'UNIPROT:O59394'}}
 
 
 class Test(unittest.TestCase):
 
+    def setUp(self):
+        os.mkdir(OUTPUT)
+
+    def tearDown(self):
+        shutil.rmtree(OUTPUT)
+
     def test_get_directories(self):
-        # os.mkdir(OUTPUT)
-        os.system('meneval --blastp')
+        expected_directories = ('Output_blastP/sequences',
+                                'Output_blastP/results',
+                                'Output_blastP/results/blast_results.tsv',
+                                'Output_blastP/results/rxn_prot.tsv',
+                                'Output_blastP/blastp_validation.log')
+        directories = get_directories(OUTPUT)
+        self.assertEqual(expected_directories, directories)
+
+    def test_get_uniprot_ids_from_rxn(self):
+        for rxn in RXN_LIST:
+            uniprot_ids = get_uniprot_ids_from_rxn(rxn, PADMET_SPEC)
+            self.assertEqual(uniprot_ids, UNIPROT_IDS[rxn])
+
+    def test_create_dirs_and_init_result_file(self):
+        seq_dir, res_dir, blast_res_file, rxn_prot_file, log_file = get_directories(OUTPUT)
+        create_dirs_and_init_result_file(seq_dir, res_dir, blast_res_file)
+        dirs_to_create = [os.path.join(OUTPUT, 'results'),
+                          os.path.join(OUTPUT, 'sequences'),
+                          os.path.join(OUTPUT, 'results', 'blast_results.tsv')]
+        for file in dirs_to_create:
+            self.assertTrue(os.path.exists(file))
+        with open(dirs_to_create[2], 'r') as blast_res:
+            expected_line = ['Reaction\tUniprot ID\tSequence\tE value\tBit score\tIdentity (%)\tLength\tBlast method\n']
+            lines = blast_res.readlines()
+            self.assertEqual(expected_line, lines)
+
+    def test_create_rxn_prot_tsv(self):
+        seq_dir, res_dir, blast_res_file, rxn_prot_file, log_file = get_directories(OUTPUT)
+        create_dirs_and_init_result_file(seq_dir, res_dir, blast_res_file)
+        create_rxn_prot_tsv(UNIPROT_IDS, rxn_prot_file)
+        self.assertTrue(os.path.exists(rxn_prot_file))
+        with open(rxn_prot_file, 'r') as r_prot:
+            nb_lines = len(r_prot.readlines())
+            self.assertEqual(nb_lines, len(RXN_LIST) + 1)
+
+    def test_get_uniprot_seq(self):
+        seq = {'UNIPROT:P58350': 'MTINATVKEAGFQPASRISSIGVSEILKIGARAAAMKREGKPVIILGAGEPDFDTPEHVKQAASDAIHRGETKYTALDGTPELKK'
+                                 'AIREKFQRENGLAYELDEITVATGAKQILFNAMMASLDPGDEVIIPTPYWTSYSDIVHICEGKPVLIACDASSGFRLTAEKLEAA'
+                                 'ITPRTRWVLLNSPSNPSGAAYSAADYRPLLEVLLRHPHVWLLVDDMYEHIVYDGFRFVTPAQLEPGLKNRTLTVNGVSKAYAMTG'
+                                 'WRIGYAGGPRELIKAMAVVQSQATSCPSSISQAASVAALNGPQDFLKERTESFQRRRDLVVNGLNAIDGLDCRVPEGAFYTFSGC'
+                                 'AGVLGKVTPSGKRIKTDTDFCAYLLEDAHVAVVPGSAFGLSPFFRISYATSEAELKEALERIAAACDRLS',
+               'UNIPROT:P53090': 'MTLPESKDFSYLFSDETNARKPSPLKTCIHLFQDPNIIFLGGGLPLKDYFPWDNLSVDSPKPPFPQGIGAPIDEQNCIKYTVNKD'
+                                 'YADKSANPSNDIPLSRALQYGFSAGQPELLNFIRDHTKIIHDLKYKDWDVLATAGNTNAWESTLRVFCNRGDVILVEAHSFSSSL'
+                                 'ASAEAQGVITFPVPIDADGIIPEKLAKVMENWTPGAPKPKLLYTIPTGQNPTGTSIADHRKEAIYKIAQKYDFLIVEDEPYYFLQ'
+                                 'MNPYIKDLKEREKAQSSPKQDHDEFLKSLANTFLSLDTEGRVIRMDSFSKVLAPGTRLGWITGSSKILKPYLSLHEMTIQAPAGF'
+                                 'TQVLVNATLSRWGQKGYLDWLLGLRHEYTLKRDCAIDALYKYLPQSDAFVINPPIAGMFFTVNIDASVHPEFKTKYNSDPYQLEQ'
+                                 'SLYHKVVERGVLVVPGSWFKSEGETEPPQPAESKEVSNPNIIFFRGTYAAVSPEKLTEGLKRLGDTLYEEFGISK',
+               'UNIPROT:Q72LL6': 'MKPLSWSEAFGKGAGRIQASTIRELLKLTQRPGILSFAGGLPAPELFPKEEAAEAAARILREKGEVALQYSPTEGYAPLRAFVAE'
+                                 'WIGVRPEEVLITTGSQQALDLVGKVFLDEGSPVLLEAPSYMGAIQAFRLQGPRFLTVPAGEEGPDLDALEEVLKRERPRFLYLIP'
+                                 'SFQNPTGGLTPLPARKRLLQMVMERGLVVVEDDAYRELYFGEARLPSLFELAREAGYPGVIYLGSFSKVLSPGLRVAFAVAHPEA'
+                                 'LQKLVQAKQGADLHTPMLNQMLVHELLKEGFSERLERVRRVYREKAQAMLHALDREVPKEVRYTRPKGGMFVWMELPKGLSAEGL'
+                                 'FRRALEENVAFVPGGPFFANGGGENTLRLSYATLDREGIAEGVRRLGRALKGLLALV',
+               'UNIPROT:Q64602': 'MNYSRFLTATSLARKTSPIRATVEIMSRAPKDIISLAPGSPNPKVFPFKSAVFTVENGSTIRFEGEMFQRALQYSSSYGIPELLS'
+                                 'WLKQLQIKLHNPPTVNYSPNEGQMDLCITSGCQDGLCKVFEMLINPGDTVLVNEPLYSGALFAMKPLGCNFISVPSDDCGIIPEG'
+                                 'LKKVLSQWKPEDSKDPTKRTPKFLYTIPNGNNPTGNSLTGDRKKEIYELARKYDFLIIEDDPYYFLQFTKPWEPTFLSMDVDGRV'
+                                 'IRADSLSKVISSGLRVGFITGPKSLIQRIVLHTQISSLHPCTLSQLMISELLYQWGEEGFLAHVDRAIDFYKNQRDFILAAADKW'
+                                 'LRGLAEWHVPKAGMFLWIKVNGISDAKKLIEEKAIEREILLVPGNSFFVDNSAPSSFFRASFSQVTPAQMDLVFQRLAQLIKDV'
+                                 'S',
+               'PID:NP_746228.1': 'MNQESISQSIAIVHPITLSHGRNAEVWDTDGKRYIDFVGGIGVLNLGHCNPAVVEAIQAQATRLTHYAFNAAPHGPYLALMEQL'
+                                  'SQFVPVSYPLAGMLTNSGAEAAENALKVARGATGKRAIIAFDGGFHGRTLATLNLNGKVAPYKQRVGELPGPVYHLPYPSADTG'
+                                  'VTCEQALKAMDRLFSVELAVEDVAAFIFEPVQGEGGFLALDPAFAQALRRFCDERGILIIIDEIQSGFGRTGQRFAFPRLGIEP'
+                                  'DLLLLAKSIAGGMPLGAVVGRKELMAALPKGGLGGTYSGNPISCAAALASLAQMTDENLATWGERQEQAIVSRYERWKASGLSP'
+                                  'YIGRLTGVGAMRGIEFANADGSPAPAQLAKVMEAARARGLLLMPSGKARHIIRLLAPLTIEAEVLEEGLDILEQCLAELN'
+               }
+        for uni_id in UNIPROT_IDS['2-AMINOADIPATE-AMINOTRANSFERASE-RXN']:
+            self.assertEqual(get_uniprot_seq(uni_id, PROT_FASTA), seq[uni_id])
+
+    def test_run_blastp(self):
+        seq_dir, res_dir, blast_res_file, rxn_prot_file, log_file = get_directories(OUTPUT)
+        create_dirs_and_init_result_file(seq_dir, res_dir, blast_res_file)
+        rxn = '2-AMINOADIPATE-AMINOTRANSFERASE-RXN'
+        uni_id = 'UNIPROT:Q72LL6'
+        seq = 'MKPLSWSEAFGKGAGRIQASTIRELLKLTQRPGILSFAGGLPAPELFPKEEAAEAAARILREKGEVALQYSPTEGYAPLRAFVAEWIGVRPEEVLITTGSQ' \
+              'QALDLVGKVFLDEGSPVLLEAPSYMGAIQAFRLQGPRFLTVPAGEEGPDLDALEEVLKRERPRFLYLIPSFQNPTGGLTPLPARKRLLQMVMERGLVVVED' \
+              'DAYRELYFGEARLPSLFELAREAGYPGVIYLGSFSKVLSPGLRVAFAVAHPEALQKLVQAKQGADLHTPMLNQMLVHELLKEGFSERLERVRRVYREKAQA' \
+              'MLHALDREVPKEVRYTRPKGGMFVWMELPKGLSAEGLFRRALEENVAFVPGGPFFANGGGENTLRLSYATLDREGIAEGVRRLGRALKGLLALV'
+        res = run_blastp(seq, uni_id, rxn, SPECIES_PROTEOME, seq_dir, blast_res_file)
+        self.assertTrue(res)
+        self.assertTrue(os.path.exists(os.path.join(seq_dir, 'Q72LL6.fasta')))
+        exp_line = ['Reaction\tUniprot ID\tSequence\tE value\tBit score\tIdentity (%)\tLength\tBlast method\n',
+                    '2-AMINOADIPATE-AMINOTRANSFERASE-RXN\tQ72LL6\tc1863\t1.56e-46\t163\t30.890\t382\tBlastp\n',
+                    '2-AMINOADIPATE-AMINOTRANSFERASE-RXN\tQ72LL6\tc3224\t2.03e-24\t101\t27.200\t375\tBlastp\n',
+                    '2-AMINOADIPATE-AMINOTRANSFERASE-RXN\tQ72LL6\tc2916\t3.79e-15\t73.6\t23.824\t340\tBlastp\n',
+                    '2-AMINOADIPATE-AMINOTRANSFERASE-RXN\tQ72LL6\tc2548\t9.03e-12\t63.2\t27.778\t234\tBlastp\n']
+
+        with open(blast_res_file, 'r') as res_file:
+            self.assertEqual(res_file.readlines(), exp_line)
+
+

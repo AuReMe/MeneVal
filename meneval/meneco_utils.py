@@ -81,7 +81,6 @@ def add_rxn_to_nw(prev_nw: str, gap_filled_nw: str, rxn_to_add: str):
     db = get_file_from_ext(os.path.join(INPUT, DATABASE_D), PADMET_EXT)
     os.system(f'padmet manual_curation --padmetSpec={prev_nw} --data={rxn_to_add} --padmetRef={db} '
               f'--output={gap_filled_nw} --tool=MENECO --category=GAP-FILLING -v')
-    logging.info(f'{gap_filled_nw} created.')
 
 
 def extract_genes_from_blast():

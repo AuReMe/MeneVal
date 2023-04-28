@@ -1,15 +1,34 @@
-# -*- coding: utf-8 -*-
 import os.path
 import logging
 
 from typing import List
+
+import aucomana.utils.reactions
 from aucomana.utils.reactions import Reactions
 from aucomana.utils.utils import get_grp_set
 
 
 # ENVIRONMENT ==========================================================================================================
 
-def create_rxn_instance(reactions_file: str, group_file: str, group: str):
+def create_rxn_instance(reactions_file: str, group_file: str or None, group: str or None) -> \
+        aucomana.utils.reactions.Reactions:
+    """ Create an aucomana Reactions instance from reactions.tsv file created from comparison of padmet networks.
+    Selects a specified group of species if group_file and group parameters filled.
+
+    Parameters
+    ----------
+    reactions_file: str
+        Path to reactions.tsv file created from comparison of padmet networks
+    group_file: str or None
+        Path to group_template.tsv file from aucome analysis step, if None all species will be selected
+    group: str or None
+        Name of the group to select, if None all species will be selected
+
+    Returns
+    -------
+    aucomana.utils.reactions.Reactions
+        Reactions instance from aucomana package
+    """
     if group_file is not None:
         if group is None:
             logging.warning('Group file specified but no group name was given, will consider all species.')
@@ -24,8 +43,22 @@ def create_rxn_instance(reactions_file: str, group_file: str, group: str):
 
 
 # RES
-def init_res_file(name_species: str, output: str):
-    res_file = os.path.join(output, 'res_val2.tsv')
+def init_res_file(name_species: str, output: str) -> str:
+    """ Initialize the results file and return its path
+
+    Parameters
+    ----------
+    name_species: str
+        Name of the species studied (class of species per example)
+    output: str
+        Output directory to store the results file
+
+    Returns
+    -------
+    str
+        Path to the results file
+    """
+    res_file = os.path.join(output, 'res_validation_networks.tsv')
     res_header = ['RXN', f'Nb {name_species} presence', f'{name_species} presence %', f'{name_species} list']
     with open(res_file, 'w') as F:
         F.write('\t'.join(res_header))
@@ -35,7 +68,7 @@ def init_res_file(name_species: str, output: str):
 # Init logger
 def init_logger(output: str):
     log_file = os.path.join(output, 'networks_validation.log')
-    logging.basicConfig(filename=log_file, level=logging.INFO, format='%(message)s')
+    logging.basicConfig(filename=log_file, level=logging.INFO, format='%(message)s', force=True)
 
 
 # FUNCTIONS ============================================================================================================

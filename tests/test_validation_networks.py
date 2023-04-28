@@ -61,5 +61,9 @@ class Test(unittest.TestCase):
             file_content = ['RXN\tNb group1_name presence\tgroup1_name presence %\tgroup1_name list']
             self.assertEqual(res_f.readlines(), file_content)
 
+    def test_init_logger(self):
+        init_logger(OUTPUT)
+        self.assertTrue(os.path.exists(os.path.join(OUTPUT, 'networks_validation.log')))
+
     def test_(self):
         pass

@@ -1,7 +1,7 @@
 import os.path
 import logging
 
-from typing import List
+from typing import List, Tuple, Set
 
 import aucomana.utils.reactions
 from aucomana.utils.reactions import Reactions
@@ -9,6 +9,44 @@ from aucomana.utils.utils import get_grp_set
 
 
 # ENVIRONMENT ==========================================================================================================
+
+# RES
+def init_res_file(name_species: str, output: str) -> str:
+    """ Initialize the results file and return its path
+
+    Parameters
+    ----------
+    name_species: str
+        Name of the species studied (class of species per example)
+    output: str
+        Output directory to store the results file
+
+    Returns
+    -------
+    str
+        Path to the results file
+    """
+    res_file = os.path.join(output, 'res_validation_networks.tsv')
+    res_header = ['RXN', f'Nb {name_species} presence', f'{name_species} presence %', f'{name_species} list']
+    with open(res_file, 'w') as F:
+        F.write('\t'.join(res_header))
+    return res_file
+
+
+# Init logger
+def init_logger(output: str):
+    """ Initialize logger file
+
+    Parameters
+    ----------
+    output: str
+        Path to the output directory to store the log file
+    """
+    log_file = os.path.join(output, 'networks_validation.log')
+    logging.basicConfig(filename=log_file, level=logging.INFO, format='%(message)s', force=True)
+
+
+# FUNCTIONS ============================================================================================================
 
 def create_rxn_instance(reactions_file: str, group_file: str or None, group: str or None) -> \
         aucomana.utils.reactions.Reactions:
@@ -42,39 +80,20 @@ def create_rxn_instance(reactions_file: str, group_file: str or None, group: str
     return rxn
 
 
-# RES
-def init_res_file(name_species: str, output: str) -> str:
-    """ Initialize the results file and return its path
+def write_res(rxn: str, rxn_pres: Tuple[Tuple[int, float], Set[str]], res_file: str):
+    """ Writes the line of the result for a given reaction in the result file.
 
     Parameters
     ----------
-    name_species: str
-        Name of the species studied (class of species per example)
-    output: str
-        Output directory to store the results file
-
-    Returns
-    -------
-    str
-        Path to the results file
+    rxn: str
+        Reaction to consider
+    rxn_pres: tuple[tuple[int, float], set[str]]
+        Indication of the presence of the reaction among the species :
+        tuple[tuple[number_of_species_having_the_reaction, percentage_of_species_having_the_reaction],
+              list[species_having_the_reaction]]
+    res_file
     """
-    res_file = os.path.join(output, 'res_validation_networks.tsv')
-    res_header = ['RXN', f'Nb {name_species} presence', f'{name_species} presence %', f'{name_species} list']
-    with open(res_file, 'w') as F:
-        F.write('\t'.join(res_header))
-    return res_file
-
-
-# Init logger
-def init_logger(output: str):
-    log_file = os.path.join(output, 'networks_validation.log')
-    logging.basicConfig(filename=log_file, level=logging.INFO, format='%(message)s', force=True)
-
-
-# FUNCTIONS ============================================================================================================
-
-def write_res(rxn, bact_pres, res_file: str):
-    args_list = [rxn, bact_pres[0][0], round(bact_pres[0][1] * 100, 2), ';'.join(bact_pres[1])]
+    args_list = [rxn, rxn_pres[0][0], round(rxn_pres[0][1] * 100, 2), ';'.join(rxn_pres[1])]
     args_list = [str(x) for x in args_list]
     with open(res_file, 'a') as f:
         f.write('\n' + '\t'.join(args_list))

@@ -54,8 +54,8 @@ class Test(unittest.TestCase):
     def setUp(self):
         os.mkdir(OUTPUT)
 
-    # def tearDown(self):
-    #     shutil.rmtree(OUTPUT)
+    def tearDown(self):
+        shutil.rmtree(OUTPUT)
 
     def test_get_directories(self):
         expected_directories = ('Output_blastP/sequences',
@@ -171,5 +171,23 @@ class Test(unittest.TestCase):
 
     def test_validation_blastp(self):
         validation_blastp(RXN_LIST, OUTPUT, DB_PADMET, PROT_FASTA_FILE, SPECIES_PROTEOME, SPECIES_GENOME)
+        seq_dir, res_dir, blast_res_file, rxn_prot_file, log_file = get_directories(OUTPUT)
+        seq_fasta = {'Q64602.fasta', 'Q2RJ84.fasta', 'Q07179.fasta', 'Q58667.fasta', 'Q9ZNE0.fasta', 'Q5JEW1.fasta',
+                     'O59390.fasta', 'Q2RJ79.fasta', 'Q57926.fasta', 'Q8TW28.fasta', 'Q2RJ83.fasta', 'P70728.fasta',
+                     'O59394.fasta', 'Q00852.fasta', 'P63510.fasta', 'Q44290.fasta', 'P54610.fasta', 'O94225.fasta',
+                     'Q5SIJ1.fasta', 'O27668.fasta', 'Q01767.fasta', 'Q00853.fasta', 'O74298.fasta', 'Q8TLF1.fasta',
+                     'J7SH14.fasta', 'Q8YMD9.fasta', 'O26917.fasta', 'Q57564.fasta', 'Q8TKQ6.fasta', 'Q58991.fasta',
+                     'Q01181.fasta', 'Q58409.fasta', 'Q52070.fasta', 'P40976.fasta', 'P53090.fasta', 'Q59175.fasta',
+                     'P07702.fasta', 'Q8TPT4.fasta', 'Q2RJ81.fasta', 'Q9ZND9.fasta', 'Q88H32.fasta', 'Q4J989.fasta',
+                     'Q2RJ82.fasta', 'Q72LL6.fasta', 'Q2RJ80.fasta', 'P05342.fasta', 'P58350.fasta', 'P40495.fasta',
+                     'NP_746228.1.fasta'}
 
+        self.assertEqual(set(os.listdir(seq_dir)), seq_fasta)
+        self.assertTrue(os.path.exists(blast_res_file))
+        self.assertTrue(os.path.exists(rxn_prot_file))
+        self.assertTrue(os.path.exists(log_file))
 
+        with open(blast_res_file, 'r') as blast_f, open(rxn_prot_file, 'r') as rxn_f, open(log_file, 'r') as log_f:
+            self.assertEqual(len(blast_f.readlines()), 110)
+            self.assertEqual(len(rxn_f.readlines()), 14)
+            self.assertEqual(len(log_f.readlines()), 263)

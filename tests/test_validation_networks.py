@@ -22,8 +22,8 @@ RXN_LIST: List[str] = ['2-AMINOADIPATE-AMINOTRANSFERASE-RXN',
                        'RXN-7970']
 NAME_SPECIES: str = 'group1_name'
 OUTPUT: str = 'Outputs_networks'
-REACTIONS_FILE: str = 'Files_generated/Input/AuCoMe/reactions.tsv'
-GROUP_FILE: str = 'Files_generated/Input/AuCoMe/group_template.tsv'
+REACTIONS_FILE: str = 'Final_run/Input/AuCoMe/reactions.tsv'
+GROUP_FILE: str = 'Final_run/Input/AuCoMe/group_template.tsv'
 GROUP: str = 'group1'
 
 GROUP1 = {'UTI89', 'IAI1', 'CFT073', 'HS'}

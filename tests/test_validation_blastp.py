@@ -18,10 +18,10 @@ RXN_LIST: List[str] = ['2-AMINOADIPATE-AMINOTRANSFERASE-RXN',
                        'RXN-5061',
                        'RXN-7970']
 OUTPUT: str = 'Output_blastP'
-DB_PADMET: str = 'Files_generated/Input/DataBase/metacyc_26.0_prot70.padmet'
-PROT_FASTA_FILE: str = 'Files_generated/Input/DataBase/proteins_seq_ids_reduced_70.fasta'
-SPECIES_PROTEOME: str = 'Files_generated/Input/Species_seq/CFT073.faa'
-SPECIES_GENOME: str = 'Files_generated/Input/Species_seq/CFT073.fna'
+DB_PADMET: str = 'Final_run/Input/DataBase/metacyc_26.0_prot70.padmet'
+PROT_FASTA_FILE: str = 'Final_run/Input/DataBase/proteins_seq_ids_reduced_70.fasta'
+SPECIES_PROTEOME: str = 'Final_run/Input/Species_seq/CFT073.faa'
+SPECIES_GENOME: str = 'Final_run/Input/Species_seq/CFT073.fna'
 
 PADMET_SPEC: padmet.classes.padmetSpec = PadmetSpec(DB_PADMET)
 PROT_FASTA = SeqIO.to_dict(SeqIO.parse(PROT_FASTA_FILE, 'fasta'))

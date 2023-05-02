@@ -57,6 +57,21 @@ def create_new_meneco_tsv(meneco_tsv: str, kept_rxn: Set[str], output_meneco_tsv
 
 
 def get_meneco_files(num: int) -> Tuple[str, str, str]:
+    """ Returns the files names of meneco outputs (meneco json output, meneco tsv output and filtered meneco tsv output)
+    according the number of the step results desired.
+
+    Parameters
+    ----------
+    num: int
+        Number defining the meneco files to get. (corresponding to a step)
+
+    Returns
+    -------
+    tuple[str, str, str]
+        tuple[meneco_out, meneco_tsv, meneco_filtered]
+        Path to the meneco json output, meneco tsv output and the filtered meneco tsv output corresponding to the
+        meneco results of a step run (corresponding to the num)
+    """
     meneco_out = os.path.join(OUTPUT, MENECO_D, TOOL_OUTPUTS_D, f'{num}_meneco.json')
     meneco_tsv = os.path.join(OUTPUT, MENECO_D, TSV_D, f'{num}_meneco_out.tsv')
     meneco_filtered = os.path.join(OUTPUT, MENECO_D, FILTERED_D, f'{num}_meneco_out_filtered.tsv')

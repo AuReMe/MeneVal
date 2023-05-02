@@ -11,12 +11,30 @@ OUTPUT = 'Output_meneco_utils'
 class Test(unittest.TestCase):
 
     def setUp(self):
-        os.mkdir(OUTPUT)
+        os.system('meneval --init')
 
     # def tearDown(self):
     #     shutil.rmtree('Input')
     #     shutil.rmtree('Output')
     #     os.remove('meneco_validation.log')
+
+    @staticmethod
+    def move_files():
+        source_dest = {'Final_run/Input/AuCoMe/group_template.tsv': 'Input/AuCoMe/group_template.tsv',
+                       'Final_run/Input/AuCoMe/reactions.tsv': 'Input/AuCoMe/reactions.tsv',
+                       'Final_run/Input/DataBase/metacyc_26.0_prot70.padmet':
+                           'Input/DataBase/metacyc_26.0_prot70.padmet',
+                       'Final_run/Input/DataBase/proteins_seq_ids_reduced_70.fasta':
+                           'Input/DataBase/proteins_seq_ids_reduced_70.fasta',
+                       'Final_run/Input/Networks/CFT073.padmet': 'Input/Networks/CFT073.padmet',
+                       'Final_run/Input/Seeds/artefacts.tsv': 'Input/Seeds/artefacts.tsv',
+                       'Final_run/Input/Seeds/seeds.tsv': 'Input/Seeds/seeds.tsv',
+                       'Final_run/Input/Species_seq/CFT073.faa': 'Input/Species_seq/CFT073.faa',
+                       'Final_run/Input/Species_seq/CFT073.fna': 'Input/Species_seq/CFT073.fna',
+                       'Final_run/Input/Targets/targets.tsv': 'Input/Targets/targets.tsv'
+                       }
+        for source, destination in source_dest.items():
+            shutil.copy(source, destination)
 
     def test_extract_rxn_from_meneco(self):
         rxn = extract_rxn_from_meneco(MENECO_TSV)
@@ -27,6 +45,7 @@ class Test(unittest.TestCase):
         self.assertEqual(set(rxn), exp_rxn)
 
     def test_create_new_meneco_tsv(self):
+        os.mkdir(OUTPUT)
         new_meneco = os.path.join(OUTPUT, 'new_meneco.tsv')
         kept_rxn = {'RXN-13722', 'RXN-16756', 'RXN-22438'}
         message = 'Adding for test'
@@ -41,6 +60,7 @@ class Test(unittest.TestCase):
                 line = line.split('\t')
                 if line[6] != 'Comment':
                     self.assertEqual(line[6], message)
+        shutil.rmtree(OUTPUT)
 
-    def test_(self):
+    def test_get_meneco_files(self):
         pass

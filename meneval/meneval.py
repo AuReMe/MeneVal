@@ -28,7 +28,6 @@ from meneval.meneco_utils import *
 from meneval.stats_recap import *
 from meneval.validation_BlastP import validation_blastp
 from meneval.validation_networks import validation_networks
-import argparse
 import os
 import shutil
 import logging

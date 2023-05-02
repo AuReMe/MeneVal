@@ -35,7 +35,7 @@ import logging
 
 # Init logger
 LOG_FILE = os.path.join('meneco_validation.log')
-logging.basicConfig(filename=LOG_FILE, level=logging.INFO, format='%(message)s', force=True)
+logging.basicConfig(filename=LOG_FILE, level=logging.INFO, format='%(message)s')
 
 # FUNCTIONS ============================================================================================================
 
@@ -132,7 +132,7 @@ def run_step(num, group=None):
                 aucome_step(meneco_tsv, meneco_filtered, group)
             if name == names_list[3]:
                 final_step(meneco_tsv, meneco_filtered)
-            logging.basicConfig(filename=LOG_FILE, level=logging.INFO, format='%(message)s', force=True)
+            logging.basicConfig(filename=LOG_FILE, level=logging.INFO, format='%(message)s')
         else:
             logging.info(f'{meneco_filtered} file found, passing {name} validation.')
         check_file_creation(meneco_filtered)

@@ -54,8 +54,8 @@ class Test(unittest.TestCase):
     def setUp(self):
         os.mkdir(OUTPUT)
 
-    # def tearDown(self):
-    #     shutil.rmtree(OUTPUT)
+    def tearDown(self):
+        shutil.rmtree(OUTPUT)
 
     def test_get_directories(self):
         expected_directories = ('Output_blastP/sequences',
@@ -170,7 +170,8 @@ class Test(unittest.TestCase):
             self.assertEqual(res_file.readlines(), exp_line)
 
     def test_validation_blastp(self):
-        validation_blastp(RXN_LIST, OUTPUT, DB_PADMET, PROT_FASTA_FILE, SPECIES_PROTEOME, SPECIES_GENOME)
+        kept_rxn = validation_blastp(RXN_LIST, OUTPUT, DB_PADMET, PROT_FASTA_FILE, SPECIES_PROTEOME, SPECIES_GENOME)
+        print(kept_rxn)
         seq_dir, res_dir, blast_res_file, rxn_prot_file, log_file = get_directories(OUTPUT)
         seq_fasta = {'Q64602.fasta', 'Q2RJ84.fasta', 'Q07179.fasta', 'Q58667.fasta', 'Q9ZNE0.fasta', 'Q5JEW1.fasta',
                      'O59390.fasta', 'Q2RJ79.fasta', 'Q57926.fasta', 'Q8TW28.fasta', 'Q2RJ83.fasta', 'P70728.fasta',
@@ -182,6 +183,8 @@ class Test(unittest.TestCase):
                      'Q2RJ82.fasta', 'Q72LL6.fasta', 'Q2RJ80.fasta', 'P05342.fasta', 'P58350.fasta', 'P40495.fasta',
                      'NP_746228.1.fasta'}
 
+        self.assertEqual(kept_rxn, {'L-LYSINE-AMINOTRANSFERASE-RXN', 'RXN-16756', 'RXN-13722', 'RXN-21797',
+                                    '2-AMINOADIPATE-AMINOTRANSFERASE-RXN', 'HOMOCITRATE-SYNTHASE-RXN', 'RXN-7970'})
         self.assertEqual(set(os.listdir(seq_dir)), seq_fasta)
         self.assertTrue(os.path.exists(blast_res_file))
         self.assertTrue(os.path.exists(rxn_prot_file))

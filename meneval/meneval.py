@@ -35,7 +35,7 @@ import logging
 
 # Init logger
 LOG_FILE = os.path.join('meneco_validation.log')
-logging.basicConfig(filename=LOG_FILE, level=logging.INFO, format='%(message)s')
+logging.basicConfig(filename=LOG_FILE, level=logging.INFO, format='%(message)s', force=True)
 
 # FUNCTIONS ============================================================================================================
 
@@ -110,45 +110,51 @@ def run_step(num, group=None):
         logging.info(f'{meneco_out} file found, passing meneco run.')
     check_file_creation(meneco_out)
 
-    # TSV output creation
-    logging.info(f'\nCreate Meneco tsv output :\n{40 * "-"}\n')
-    if not os.path.exists(meneco_tsv):
-        meneco_json_to_tsv(meneco_out, meneco_tsv)
-    else:
-        logging.info(f'{meneco_tsv} file found, passing tsv creation.')
-    check_file_creation(meneco_tsv)
+    if exists_not_producible_targets(meneco_out):
 
-    # Validation step
-    logging.info(f'\nRunning {name} validation step :\n{40 * "-"}\n')
-    if not os.path.exists(meneco_filtered):
-        if name == names_list[0]:
-            blastp_step(meneco_tsv, meneco_filtered)
-            add_genes_tsv(meneco_filtered)
-        if name == names_list[1]:
-            holobiont_step(meneco_tsv, meneco_filtered)
-        if name == names_list[2]:
-            aucome_step(meneco_tsv, meneco_filtered, group)
-        if name == names_list[3]:
-            final_step(meneco_tsv, meneco_filtered)
-    else:
-        logging.info(f'{meneco_filtered} file found, passing {name} validation.')
-    check_file_creation(meneco_filtered)
+        # TSV output creation
+        logging.info(f'\nCreate Meneco tsv output :\n{40 * "-"}\n')
+        if not os.path.exists(meneco_tsv):
+            meneco_json_to_tsv(meneco_out, meneco_tsv)
+        else:
+            logging.info(f'{meneco_tsv} file found, passing tsv creation.')
+        check_file_creation(meneco_tsv)
 
-    # Add reactions to network
-    logging.info(f'\nAdding reactions found to network :\n{40 * "-"}\n')
-    if not os.path.exists(dict_nw[PADMET_D]):
-        add_rxn_to_nw(prev_network_padmet, dict_nw[PADMET_D], meneco_filtered)
-    else:
-        logging.info(f'{dict_nw[PADMET_D]} file found, passing adding reactions to network.')
-    check_file_creation(dict_nw[PADMET_D])
+        # Validation step
+        logging.info(f'\nRunning {name} validation step :\n{40 * "-"}\n')
+        if not os.path.exists(meneco_filtered):
+            if name == names_list[0]:
+                blastp_step(meneco_tsv, meneco_filtered)
+                add_genes_tsv(meneco_filtered)
+            if name == names_list[1]:
+                holobiont_step(meneco_tsv, meneco_filtered)
+            if name == names_list[2]:
+                aucome_step(meneco_tsv, meneco_filtered, group)
+            if name == names_list[3]:
+                final_step(meneco_tsv, meneco_filtered)
+            logging.basicConfig(filename=LOG_FILE, level=logging.INFO, format='%(message)s', force=True)
+        else:
+            logging.info(f'{meneco_filtered} file found, passing {name} validation.')
+        check_file_creation(meneco_filtered)
 
-    # Create SBML network
-    logging.info(f'\nConvert Padmet to SBML:\n{40 * "-"}\n')
-    if not os.path.exists(dict_nw[SBML_D]):
-        padmet_to_sbml(padmet=dict_nw[PADMET_D], output=dict_nw[SBML_D])
+        # Add reactions to network
+        logging.info(f'\nAdding reactions found to network :\n{40 * "-"}\n')
+        if not os.path.exists(dict_nw[PADMET_D]):
+            add_rxn_to_nw(prev_network_padmet, dict_nw[PADMET_D], meneco_filtered)
+        else:
+            logging.info(f'{dict_nw[PADMET_D]} file found, passing adding reactions to network.')
+        check_file_creation(dict_nw[PADMET_D])
+
+        # Create SBML network
+        logging.info(f'\nConvert Padmet to SBML:\n{40 * "-"}\n')
+        if not os.path.exists(dict_nw[SBML_D]):
+            padmet_to_sbml(padmet=dict_nw[PADMET_D], output=dict_nw[SBML_D])
+        else:
+            logging.info(f'{dict_nw[SBML_D]} file found, passing convert Padmet to SBML.')
+        check_file_creation(dict_nw[SBML_D])
+
     else:
-        logging.info(f'{dict_nw[SBML_D]} file found, passing convert Padmet to SBML.')
-    check_file_creation(dict_nw[SBML_D])
+        logging.info('\n--> No targets left to reach. Finishing step.')
 
     logging.info(f'\n-----------\nStep {num} Done\n')
 

@@ -1,13 +1,18 @@
-from meneval.environment import *
-from typing import Tuple, Set
 import meneco
 import json
 import logging
+from typing import Tuple, Set
+from meneval.environment import *
 
 
 def extract_rxn_from_meneco(meneco_tsv: str) -> List[str]:
     """Extract the list of reactions corresponding to the union of reactions from solutions found by Meneco.
     The extraction is done from a meneco_output.tsv file created with padmet enhance_meneco_output.
+
+    Parameters
+    ----------
+    meneco_tsv: str
+        Meneco results in TSV format (output from enhanced_meneco_output in padmet)
 
     Returns
     -------
@@ -113,3 +118,10 @@ def add_genes_tsv(tsv_file):
 
     os.remove(tsv_file)
     os.rename(new_tsv, tsv_file)
+
+
+def exists_not_producible_targets(output_json):
+    with open(output_json, 'r') as f:
+        meneco_res = json.load(f)
+    not_producible = meneco_res['Unproducible targets']
+    return len(not_producible) > 0

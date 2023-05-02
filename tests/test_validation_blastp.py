@@ -54,8 +54,8 @@ class Test(unittest.TestCase):
     def setUp(self):
         os.mkdir(OUTPUT)
 
-    def tearDown(self):
-        shutil.rmtree(OUTPUT)
+    # def tearDown(self):
+    #     shutil.rmtree(OUTPUT)
 
     def test_get_directories(self):
         expected_directories = ('Output_blastP/sequences',

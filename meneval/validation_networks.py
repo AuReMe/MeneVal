@@ -91,7 +91,8 @@ def write_res(rxn: str, rxn_pres: Tuple[Tuple[int, float], Set[str]], res_file: 
         Indication of the presence of the reaction among the species :
         tuple[tuple[number_of_species_having_the_reaction, percentage_of_species_having_the_reaction],
               list[species_having_the_reaction]]
-    res_file
+    res_file: str
+        Path to the result file to write the result
     """
     args_list = [rxn, rxn_pres[0][0], round(rxn_pres[0][1] * 100, 2), ';'.join(rxn_pres[1])]
     args_list = [str(x) for x in args_list]
@@ -102,10 +103,33 @@ def write_res(rxn: str, rxn_pres: Tuple[Tuple[int, float], Set[str]], res_file: 
 # MAIN FUNCTION ========================================================================================================
 
 def validation_networks(name_species: str, output: str, rxn_list: List[str], reactions_file: str,
-                        group_file: str = None, group: str = None):
+                        group_file: str = None, group: str = None) -> Set[str]:
+    """ Checks from a list of reactions if some are present in networks of a group of species. The check is done from
+    a comparison file of padmet networks.
+
+    Parameters
+    ----------
+    name_species: str
+        Name of the species studied (class of species per example)
+    output: str
+        Output directory to store the results files
+    rxn_list: list[str]
+        List of reactions to check
+    reactions_file: str
+        Path to reactions.tsv file created from comparison of padmet networks
+    group_file: str or None
+        Path to group_template.tsv file from aucome analysis step, if None all species will be selected
+    group: str or None
+        Name of the group to select, if None all species will be selected
+
+    Returns
+    -------
+    set[str]
+        Set of reactions that were found in other group species networks
+    """
     init_logger(output)
-    logging.info(f'Start searching for presence in {name_species} of reactions from Meneco output\n'
-                 '======================================================================================\n')
+    logging.info(f'Start searching for presence in {name_species} of reactions'
+                 '==================================================================\n')
     res_file = init_res_file(name_species, output)
     rxn_instance = create_rxn_instance(reactions_file, group_file, group)
 

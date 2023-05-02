@@ -21,7 +21,7 @@ RXN_LIST: List[str] = ['2-AMINOADIPATE-AMINOTRANSFERASE-RXN',
                        'RXN-5061',
                        'RXN-7970']
 NAME_SPECIES: str = 'group1_name'
-OUTPUT: str = 'Ouputs_networks'
+OUTPUT: str = 'Outputs_networks'
 REACTIONS_FILE: str = 'Files_generated/Input/AuCoMe/reactions.tsv'
 GROUP_FILE: str = 'Files_generated/Input/AuCoMe/group_template.tsv'
 GROUP: str = 'group1'
@@ -32,11 +32,11 @@ ALL_SP = {'HS', 'IAI1', 'CFT073', 'UTI89', 'sf301', 'ec042', 'LF82'}
 
 class Test(unittest.TestCase):
 
-    # def setUp(self):
-    #     os.mkdir(OUTPUT)
-    #
-    # def tearDown(self):
-    #     shutil.rmtree(OUTPUT)
+    def setUp(self):
+        os.mkdir(OUTPUT)
+
+    def tearDown(self):
+        shutil.rmtree(OUTPUT)
 
     def test_create_rxn_instance(self):
         rxn_group = create_rxn_instance(REACTIONS_FILE, GROUP_FILE, GROUP)
@@ -65,5 +65,46 @@ class Test(unittest.TestCase):
         init_logger(OUTPUT)
         self.assertTrue(os.path.exists(os.path.join(OUTPUT, 'networks_validation.log')))
 
-    def test_(self):
-        pass
+    def test_write_res(self):
+        res_file = init_res_file(NAME_SPECIES, OUTPUT)
+
+        # Write 1 result
+        rxn = 'ORNITHINE-CYCLODEAMINASE-RXN'
+        rxn_pres = ((2, 0.5), {'UTI89', 'HS'})
+        write_res(rxn, rxn_pres, res_file)
+        with open(res_file, 'r') as res_f:
+            lines = res_f.readlines()
+            exp_lines1 = ['RXN\tNb group1_name presence\tgroup1_name presence %\tgroup1_name list\n',
+                          'ORNITHINE-CYCLODEAMINASE-RXN\t2\t50.0\tHS;UTI89']
+            exp_lines2 = ['RXN\tNb group1_name presence\tgroup1_name presence %\tgroup1_name list\n',
+                          'ORNITHINE-CYCLODEAMINASE-RXN\t2\t50.0\tUTI89;HS']
+            self.assertTrue((lines == exp_lines1) or (lines == exp_lines2))
+
+        # Write another result
+        rxn = 'RXN-19380'
+        rxn_pres = ((1, 0.25), {'IAI1'})
+        write_res(rxn, rxn_pres, res_file)
+        with open(res_file, 'r') as res_f:
+            lines = res_f.readlines()
+            exp_lines1 = ['RXN\tNb group1_name presence\tgroup1_name presence %\tgroup1_name list\n',
+                          'ORNITHINE-CYCLODEAMINASE-RXN\t2\t50.0\tHS;UTI89\n',
+                          'RXN-19380\t1\t25.0\tIAI1']
+            exp_lines2 = ['RXN\tNb group1_name presence\tgroup1_name presence %\tgroup1_name list\n',
+                          'ORNITHINE-CYCLODEAMINASE-RXN\t2\t50.0\tUTI89;HS\n',
+                          'RXN-19380\t1\t25.0\tIAI1']
+            self.assertTrue((lines == exp_lines1) or (lines == exp_lines2))
+
+    def test_validation_networks(self):
+        kept_rxn = validation_networks(NAME_SPECIES, OUTPUT, RXN_LIST, REACTIONS_FILE, GROUP_FILE, GROUP)
+        self.assertEqual(kept_rxn, {'ORNITHINE-CYCLODEAMINASE-RXN', 'RXN-19380'})
+        self.assertTrue(os.path.exists(os.path.join(OUTPUT, 'res_validation_networks.tsv')))
+        self.assertTrue(os.path.exists(os.path.join(OUTPUT, 'res_validation_networks.tsv')))
+        with open(os.path.join(OUTPUT, 'res_validation_networks.tsv'), 'r') as res_f:
+            lines = res_f.readlines()
+            exp_lines1 = ['RXN\tNb group1_name presence\tgroup1_name presence %\tgroup1_name list\n',
+                          'ORNITHINE-CYCLODEAMINASE-RXN\t2\t50.0\tHS;UTI89\n',
+                          'RXN-19380\t1\t25.0\tIAI1']
+            exp_lines2 = ['RXN\tNb group1_name presence\tgroup1_name presence %\tgroup1_name list\n',
+                          'ORNITHINE-CYCLODEAMINASE-RXN\t2\t50.0\tUTI89;HS\n',
+                          'RXN-19380\t1\t25.0\tIAI1']
+            self.assertTrue((lines == exp_lines1) or (lines == exp_lines2))

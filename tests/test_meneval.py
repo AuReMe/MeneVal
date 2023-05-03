@@ -75,3 +75,16 @@ class Test(unittest.TestCase):
 
     def test_fill(self):
         os.system('meneval --fill')
+
+        self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, FILTERED_D, '4_meneco_out_filtered.tsv')))
+        self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, TOOL_OUTPUTS_D, '4_meneco.json')))
+        self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, TSV_D, '4_meneco_out.tsv')))
+
+        self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, 'stat_list.tsv')))
+        self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, 'stat_nb.tsv')))
+
+        self.assertTrue(os.path.exists(FINAL_GF_NW[PADMET_D]))
+        self.assertTrue(os.path.exists(FINAL_GF_NW[SBML_D]))
+
+        with open('meneco_validation.log', 'r') as logfile:
+            self.assertEqual(len(logfile.readlines()), 80)

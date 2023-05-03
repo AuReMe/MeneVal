@@ -26,8 +26,8 @@ INPUT FILES TO ADD :
 from meneval.files_generator import *
 from meneval.meneco_utils import *
 from meneval.stats_recap import *
-from meneval.validation_BlastP import validation_blastp
 from meneval.validation_networks import validation_networks
+from meneval.validation_BlastP import validation_blastp
 import os
 import shutil
 import logging
@@ -132,7 +132,7 @@ def run_step(num, group=None):
                 aucome_step(meneco_tsv, meneco_filtered, group)
             if name == names_list[3]:
                 final_step(meneco_tsv, meneco_filtered)
-            logging.basicConfig(filename=LOG_FILE, level=logging.INFO, format='%(message)s')
+            logging.basicConfig(filename=LOG_FILE, level=logging.INFO, format='%(message)s', force=True)
         else:
             logging.info(f'{meneco_filtered} file found, passing {name} validation.')
         check_file_creation(meneco_filtered)
@@ -168,4 +168,3 @@ def generate_files():
     generate_base_networks()
     logging.info('\nAll files needed created successfully')
     logging.info('\n--------------------------\nFiles generation step done\n')
-

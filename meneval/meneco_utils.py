@@ -1,6 +1,7 @@
 import meneco
 import json
 import logging
+import os
 from typing import Tuple, Set
 from meneval.environment import *
 
@@ -79,6 +80,16 @@ def get_meneco_files(num: int) -> Tuple[str, str, str]:
 
 
 def run_meneco(network: str, output: str):
+    """ Run Meneco tool on a SBML network and write the result in a JSON output.
+    Use seeds, targets and bdd from Inputs directories.
+
+    Parameters
+    ----------
+    network: str
+        Network in SBML format to run the gapfilling toll Meneco on
+    output: str
+        Path to the JSON file to store meneco results
+    """
     res = meneco.run_meneco(draftnet=network, seeds=SEEDS_ARTEFACTS[SBML_D], targets=TARGETS[SBML_D], repairnet=DB_SBML,
                             enumeration=False, json_output=True)
 

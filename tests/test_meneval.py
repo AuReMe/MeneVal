@@ -11,10 +11,10 @@ class Test(unittest.TestCase):
         self.move_files()
         os.system('meneval --check')
 
-    def tearDown(self):
-        shutil.rmtree('Input')
-        shutil.rmtree('Output')
-        os.remove('meneco_validation.log')
+    # def tearDown(self):
+    #     shutil.rmtree('Input')
+    #     shutil.rmtree('Output')
+    #     os.remove('meneco_validation.log')
 
     @staticmethod
     def move_files():
@@ -59,3 +59,19 @@ class Test(unittest.TestCase):
 
     def test_aucome(self):
         os.system('meneval --aucome --group=group1')
+
+        self.assertTrue(os.path.exists(os.path.join(OUTPUT, AUCOME_D, 'networks_validation.log')))
+        self.assertTrue(os.path.exists(os.path.join(OUTPUT, AUCOME_D, 'res_validation_networks.tsv')))
+
+        self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, FILTERED_D, '3_meneco_out_filtered.tsv')))
+        self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, TOOL_OUTPUTS_D, '3_meneco.json')))
+        self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, TSV_D, '3_meneco_out.tsv')))
+
+        self.assertTrue(os.path.exists(AUCOME_GF_NW[PADMET_D]))
+        self.assertTrue(os.path.exists(AUCOME_GF_NW[SBML_D]))
+
+        with open('meneco_validation.log', 'r') as logfile:
+            self.assertEqual(len(logfile.readlines()), 83)
+
+    def test_fill(self):
+        os.system('meneval --fill')

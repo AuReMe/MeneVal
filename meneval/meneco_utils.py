@@ -188,7 +188,19 @@ def add_genes_tsv(tsv_file: str):
     os.rename(new_tsv, tsv_file)
 
 
-def exists_not_producible_targets(output_json):
+def exists_not_producible_targets(output_json: str) -> bool:
+    """ Returns if there still have not producible targets from meneco json output
+
+    Parameters
+    ----------
+    output_json: str
+        Meneco output in JSON format
+
+    Returns
+    -------
+    bool
+        True if there still have not producible targets from meneco json output
+    """
     with open(output_json, 'r') as f:
         meneco_res = json.load(f)
     not_producible = meneco_res['Unproducible targets']

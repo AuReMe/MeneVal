@@ -99,6 +99,15 @@ def run_meneco(network: str, output: str):
 
 
 def meneco_json_to_tsv(output_json: str, output_tsv: str):
+    """ Convert the JSON Meneco output to a TSV Meneco output thanks to padmet enhanced_meneco_output function.
+
+    Parameters
+    ----------
+    output_json: str
+        Path to Meneco output in JSON format as the input file.
+    output_tsv: str
+        Path to Meneco output in TSV format as the output file to create.
+    """
     db = get_file_from_ext(os.path.join(INPUT, DATABASE_D), PADMET_EXT)
     os.system(f'padmet enhanced_meneco_output '
               f'--meneco={output_json} '
@@ -109,12 +118,38 @@ def meneco_json_to_tsv(output_json: str, output_tsv: str):
 
 
 def add_rxn_to_nw(prev_nw: str, gap_filled_nw: str, rxn_to_add: str):
+    """ Add reactions from Meneco in TSV format to a padmet network thanks to padmet manual_curation function.
+
+    Parameters
+    ----------
+    prev_nw: str
+        Network to add reaction in
+    gap_filled_nw: str
+        Output Network after adding reactions
+    rxn_to_add: str
+        TSV file with reaction to add to the network
+    """
     db = get_file_from_ext(os.path.join(INPUT, DATABASE_D), PADMET_EXT)
-    os.system(f'padmet manual_curation --padmetSpec={prev_nw} --data={rxn_to_add} --padmetRef={db} '
-              f'--output={gap_filled_nw} --tool=MENECO --category=GAP-FILLING -v')
+    os.system(f'padmet manual_curation '
+              f'--padmetSpec={prev_nw} '
+              f'--data={rxn_to_add} '
+              f'--padmetRef={db} '
+              f'--output={gap_filled_nw} '
+              f'--tool=MENECO '
+              f'--category=GAP-FILLING '
+              f'-v')
 
 
-def extract_genes_from_blast():
+def extract_genes_from_blast() -> Dict[str, Set[str]]:
+    """ Returns a dictionary associating for each reaction, all gene associated found with Blast hit
+
+
+    Returns
+    -------
+    Dict[str, Set[str]]
+        Dict[reaction, Set[genes_associated]]
+        Associate for each reaction, all gene associated found with Blast hit
+    """
     blast_res = os.path.join(OUTPUT, BLASTP_D, 'results', 'blast_results.tsv')
     dic_seq = dict()
     with open(blast_res, 'r') as blast_f:
@@ -127,7 +162,14 @@ def extract_genes_from_blast():
     return dic_seq
 
 
-def add_genes_tsv(tsv_file):
+def add_genes_tsv(tsv_file: str):
+    """ Add the genes associated with each reaction in TSV file (meneco output filtered) for Blastp step.
+
+    Parameters
+    ----------
+    tsv_file: str
+        TSV file (meneco output filtered) to add the genes associated with each reaction in (for Blastp step)
+    """
     logging.info(f'Adding genes linked to reactions in {tsv_file} file')
 
     dic_seq = extract_genes_from_blast()

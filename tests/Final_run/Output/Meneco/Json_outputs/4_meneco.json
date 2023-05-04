@@ -1,0 +1,6 @@
+{
+    "Draft network file": "Output/Networks/SBML/4_gapfilling_aucome.sbml",
+    "Seeds file": "Input/Seeds/seeds_artefacts.sbml",
+    "Targets file": "Input/Targets/targets.sbml",
+    "Unproducible targets": []
+}

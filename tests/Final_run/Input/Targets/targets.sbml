@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sbml xmlns="http://www.sbml.org/sbml/level2" level="2" version="1">
+  <model>
+    <listOfSpecies>
+      <species id="M_L__45__ALPHA__45__ALANINE_c" name="L-ALPHA-ALANINE" compartment="c"/>
+      <species id="M_ARG_c" name="ARG" compartment="c"/>
+      <species id="M_ASN_c" name="ASN" compartment="c"/>
+      <species id="M_L__45__ASPARTATE_c" name="L-ASPARTATE" compartment="c"/>
+      <species id="M_CYS_c" name="CYS" compartment="c"/>
+      <species id="M_GLT_c" name="GLT" compartment="c"/>
+      <species id="M_GLN_c" name="GLN" compartment="c"/>
+      <species id="M_GLY_c" name="GLY" compartment="c"/>
+      <species id="M_HIS_c" name="HIS" compartment="c"/>
+      <species id="M_ILE_c" name="ILE" compartment="c"/>
+      <species id="M_LEU_c" name="LEU" compartment="c"/>
+      <species id="M_LYS_c" name="LYS" compartment="c"/>
+      <species id="M_MET_c" name="MET" compartment="c"/>
+      <species id="M_L__45__ORNITHINE_c" name="L-ORNITHINE" compartment="c"/>
+      <species id="M_PHE_c" name="PHE" compartment="c"/>
+      <species id="M_PRO_c" name="PRO" compartment="c"/>
+      <species id="M_SER_c" name="SER" compartment="c"/>
+      <species id="M_THR_c" name="THR" compartment="c"/>
+      <species id="M_TRP_c" name="TRP" compartment="c"/>
+      <species id="M_TYR_c" name="TYR" compartment="c"/>
+      <species id="M_VAL_c" name="VAL" compartment="c"/>
+      <species id="M_GLYCERATE_c" name="GLYCERATE" compartment="c"/>
+    </listOfSpecies>
+  </model>
+</sbml>

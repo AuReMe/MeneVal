@@ -1,6 +1,11 @@
 # Meneco_validation
 Pipeline to run Meneco gapfilling tool and validate reactions proposed
 
+### Meneco Tool :
+S. Prigent et al., “Meneco, a Topology-Based Gap-Filling Tool Applicable to Degraded Genome-Wide Metabolic Networks,” PLOS Computational Biology, vol. 13, no. 1, p. e1005276, Jan. 2017. https://doi.org/10.1371/journal.pcbi.1005276
+
+GitHub : https://github.com/bioasp/meneco
+
 ## Requirements
 
 ### Tools

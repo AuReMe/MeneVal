@@ -197,14 +197,6 @@ def check_required_files():
                       get_file_from_ext(os.path.join(INPUT, NETWORK_D), PADMET_EXT)
                       ]
 
-    files_blastp = [get_file_from_ext(os.path.join(INPUT, DATABASE_D), FASTA_EXT),
-                    get_file_from_ext(os.path.join(INPUT, SPECIES_D), FAA_EXT)]
-
-    files_holobiont = [os.path.join(INPUT, HOLOBIONT_D, REACTIONS_TSV)]
-
-    files_aucome = [os.path.join(INPUT, AUCOME_D, GROUPS_TSV),
-                    os.path.join(INPUT, AUCOME_D, REACTIONS_TSV)]
-
     logging.info('Running Check step\n'
                  '==================\n')
 
@@ -212,16 +204,35 @@ def check_required_files():
         if not os.path.exists(file):
             raise OSError(f'No file {file} found')
 
-    for file in files_blastp:
-        if not os.path.exists(file):
-            logging.info('Not all files found to run the blastp step, add it if you want to run this step')
-
-    for file in files_holobiont:
-        if not os.path.exists(file):
-            logging.info('Not all files found to run the holobiont step, add it if you want to run this step')
-
-    for file in files_aucome:
-        if not os.path.exists(file):
-            logging.info('Not all files found to run the aucome step, add it if you want to run this step')
+    check_step_required_files(1)
+    check_step_required_files(2)
+    check_step_required_files(3)
 
     logging.info('All files required found\n\n---------------\nCheck step done\n')
+
+
+def check_step_required_files(step_num: int) -> bool:
+    """ Checks if all the files to run a step are found.
+
+    Parameters
+    ----------
+    step_num: int
+        Nuber of the step (1=blastp, 2=holobiont, 3=aucome)
+
+    Returns
+    -------
+    bool
+        True if all required files to run the step are found, False otherwise
+    """
+    names_list = ['', 'BLASTP', 'HOLOBIONT', 'AUCOME']
+    files_step = {1: [get_file_from_ext(os.path.join(INPUT, DATABASE_D), FASTA_EXT),
+                      get_file_from_ext(os.path.join(INPUT, SPECIES_D), FAA_EXT)],
+                  2: [os.path.join(INPUT, HOLOBIONT_D, REACTIONS_TSV)],
+                  3: [os.path.join(INPUT, AUCOME_D, GROUPS_TSV),
+                      os.path.join(INPUT, AUCOME_D, REACTIONS_TSV)]}
+
+    for file in files_step[step_num]:
+        if not os.path.exists(file):
+            logging.info(f'Not all files found to run the {names_list[step_num]} step, passing the step\n')
+            return False
+    return True

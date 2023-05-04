@@ -1,0 +1,35 @@
+reaction_id	biomass
+comment	reaction of biomass
+reversible	false
+linked_gene	
+#reactant/product	#stoichio:compound_id:compar
+reactant	1.123:L-ALPHA-ALANINE:c
+reactant	2.234:ARG:c
+reactant	3.345:ASN:c
+reactant	4.456:L-ASPARTATE:c
+reactant	5.567:CYS:c
+reactant	6.678:GLT:c
+reactant	7.789:GLN:c
+reactant	8.890:GLY:c
+reactant	9.901:HIS:c
+reactant	0.012:ILE:c
+reactant	1.321:LEU:c
+reactant	2.432:LYS:c
+reactant	3.543:MET:c
+reactant	4.654:L-ORNITHINE:c
+reactant	5.765:PHE:c
+reactant	6.876:PRO:c
+reactant	7.987:SER:c
+reactant	8.098:THR:c
+reactant	9.109:TRP:c
+reactant	0.210:TYR:c
+reactant	1.111:VAL:c
+reactant	2.222:GLYCERATE:c
+product	1.0:Bio:c
+
+reaction_id	Export_Bio
+comment	Avoid storage
+reversible	false
+linked_gene	
+reactant	1.0:Bio:c
+product	1.0:Bio:C-BOUNDARY

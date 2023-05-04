@@ -61,3 +61,6 @@ meneval --workflow
 ```
 
 ## Documentation
+
+See the full documentation on wiki :
+https://github.com/PaulineGHG/Meneval/wiki

@@ -1,4 +1,4 @@
-# Meneco_validation
+# Meneval : Meneco validation
 Pipeline to run Meneco gapfilling tool and validate reactions proposed
 
 ### Meneco Tool :

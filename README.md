@@ -11,13 +11,13 @@ Pipeline to run Meneco gapfilling tool and validate reactions proposed
 ### Python packages
 
 - Pip packages required :
-  - biopython>=1.80
-  - Meneco>=2.0.2
+  - `biopython >= 1.80`
+  - `Meneco >= 2.0.2`
 
 
-- Coned packages required :
-  - aucomana : https://github.com/PaulineGHG/aucomana.git
-  - padmet : https://github.com/AuReMe/padmet.git
+- Cloned packages required :
+  - `aucomana` : https://github.com/PaulineGHG/aucomana.git
+  - `padmet` : https://github.com/AuReMe/padmet.git
 
 ## Installation
 

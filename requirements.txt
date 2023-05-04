@@ -1,0 +1,2 @@
+biopython>=1.80
+Meneco>=2.0.2

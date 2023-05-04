@@ -6,6 +6,20 @@ S. Prigent et al., “Meneco, a Topology-Based Gap-Filling Tool Applicable to De
 
 GitHub : https://github.com/bioasp/meneco
 
+### Aucome Tool :
+
+Uses Aucome results files for the aucome step
+
+GitHub : https://github.com/AuReMe/aucome
+
+### Padmet Tool :
+
+Uses padmet networks format to manage all networks and padmets-utils functions.
+
+Aite, M., Chevallier, M., Frioux, C., Trottier, C., Got, J., Cortés, M. P., Mendoza, S. N., Carrier, G., Dameron, O., Guillaudeux, N., Latorre, M., Loira, N., Markov, G. V., Maass, A., and Siegel, A. (2018). Traceability, reproducibility and wiki-exploration for “à-la-carte” reconstructions of genome-scale metabolic models. PLOS Computational Biology, 14(5), e1006146. https://doi.org/10.1371/journal.pcbi.1006146
+
+GitHub : https://github.com/AuReMe/padmet
+
 ## Requirements
 
 ### Tools

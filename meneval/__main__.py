@@ -44,13 +44,16 @@ def main():
     # RUN STEPS ========================================================================================================
 
     if blastp:
-        run_step(1)
+        if check_step_required_files(1):
+            run_step(1)
 
     if holobiont:
-        run_step(2)
+        if check_step_required_files(2):
+            run_step(2)
 
     if aucome:
-        run_step(3, group=group)
+        if check_step_required_files(3):
+            run_step(3, group=group)
 
     if fill:
         run_step(4)

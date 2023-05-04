@@ -27,7 +27,7 @@ https://www.ncbi.nlm.nih.gov/books/NBK569861/
 
 ### Python packages
 
-From this cloned repository (in Meneval folder) :
+From this cloned repository :
 
 ```commandline
 bash install_dependencies.sh

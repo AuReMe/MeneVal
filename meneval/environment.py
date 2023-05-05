@@ -217,7 +217,7 @@ def check_step_required_files(step_num: int) -> bool:
     Parameters
     ----------
     step_num: int
-        Nuber of the step (1=blastp, 2=holobiont, 3=aucome)
+        Number of the step (1=blastp, 2=holobiont, 3=aucome)
 
     Returns
     -------

@@ -137,11 +137,10 @@ def generate_db_sbml():
 
 def generate_base_networks():
     """ In Output/Networks directory, create files :
-            - 1_medium.padmet
-            - 1_base.padmet
-            - 1_base.sbml
+            - 0_base.padmet
+            - 0_base.sbml
         """
-    # Create 1_<SPECIES>_medium.padmet
+    # Create 0_medium.padmet
     base_padmet = get_file_from_ext(os.path.join(INPUT, NETWORK_D), PADMET_EXT)
     if not files_exist(MEDIUM_NW):
         os.system(f'padmet padmet_medium --padmetSpec={base_padmet} '
@@ -150,15 +149,17 @@ def generate_base_networks():
                   f'--output={MEDIUM_NW}')
     check_file_creation(MEDIUM_NW)
 
-    # Create 1_<SPECIES>_biomass.padmet
+    # Create 0_base.padmet
     if not files_exist(BASE_NW[PADMET_D]):
         os.system(f'padmet manual_curation --padmetSpec={MEDIUM_NW} '
                   f'--data={BIOMASS_TSV} '
                   f'--output={BASE_NW[PADMET_D]} '
                   f'--category=MANUAL')
     check_file_creation(BASE_NW[PADMET_D])
+    # Delete 0_medium.padmet
+    os.remove(MEDIUM_NW)
 
-    # Create 1_<SPECIES>_base.sbml
+    # Create 0_base.sbml
     if not files_exist(BASE_NW[SBML_D]):
         padmet_to_sbml(padmet=BASE_NW[PADMET_D], output=BASE_NW[SBML_D])
     check_file_creation(BASE_NW[SBML_D])

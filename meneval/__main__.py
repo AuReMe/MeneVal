@@ -41,14 +41,14 @@ def main():
 
     if blastp:
         if check_step_required_files(1):
-            run_step(1)
+            run_step(1, 'BLASTP')
 
     if enrich is not None:
         # if check_step_required_files(2):
-        run_step(2, group=enrich)
+        run_step(2, 'ENRICHMENT', group=enrich)
 
     if fill:
-        run_step(4)
+        run_step(3, 'FILL')
         make_meneco_stats()
 
 

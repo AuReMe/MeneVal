@@ -68,22 +68,23 @@ def final_step(meneco_tsv, meneco_filtered):
     shutil.copy(meneco_tsv, meneco_filtered)
 
 
-def run_step(num, group=None):
+def run_step(num, name, group=None):
     # Get appropriated file
-    names_list = ['BLASTP', 'ENRICHMENT', 'FILL']
-    name = names_list[num - 1]
-    networks_rank = [BASE_NW]
+    if name == 'BLASTP':
+        dict_nw = get_blastp_nw()
+    if name == 'ENRICHMENT':
+        dict_nw = get_enrich_nw()[group]
+    print(dict_nw)
 
-    dict_nw = networks_rank[num]
-    prev = num - 1
-    while (not os.path.exists(networks_rank[prev][SBML_D] or
-           not os.path.exists(networks_rank[prev][PADMET_D]))):
-        prev -= 1
-        if prev == -1:
-            raise FileNotFoundError(f'No padmet and sbml files found for running step {name}')
+    for nw in os.listdir(os.path.join(OUTPUT, NETWORK_D, PADMET_D)):
+        if nw.startswith(str(num-1)):
+            prev_network_padmet = os.path.join(OUTPUT, NETWORK_D, PADMET_D, nw)
+    for nw in os.listdir(os.path.join(OUTPUT, NETWORK_D, SBML_D)):
+        if nw.startswith(str(num-1)):
+            prev_network_sbml = os.path.join(OUTPUT, NETWORK_D, SBML_D, nw)
 
-    prev_network_sbml = networks_rank[prev][SBML_D]
-    prev_network_padmet = networks_rank[prev][PADMET_D]
+    print(prev_network_sbml)
+    print(prev_network_padmet)
 
     # Begin step
     logging.info(f'{50 * "="}\n\tSTEP {num} : MENECO + {name} VALIDATION\n{50 * "="}\n')
@@ -110,12 +111,12 @@ def run_step(num, group=None):
         # Validation step
         logging.info(f'\nRunning {name} validation step :\n{40 * "-"}\n')
         if not os.path.exists(meneco_filtered):
-            if name == names_list[0]:
+            if name == 'BLASTP':
                 blastp_step(meneco_tsv, meneco_filtered)
                 add_genes_tsv(meneco_filtered)
-            if name == names_list[1]:
+            if name == 'ENRICHMENT':
                 enrichment_step(meneco_tsv, meneco_filtered, group)
-            if name == names_list[3]:
+            if name == 'FILL':
                 final_step(meneco_tsv, meneco_filtered)
             logging.basicConfig(filename=LOG_FILE, level=logging.INFO, format='%(message)s', force=True)
         else:

@@ -97,19 +97,32 @@ DB_SBML = os.path.join(INPUT, DATABASE_D, f'database{SBML_EXT}')
 
 # START NETWORKS
 
-MEDIUM_NW = os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'1_medium{PADMET_EXT}')
-BASE_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'1_base{PADMET_EXT}'),
-           SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'1_base{SBML_EXT}')}
+MEDIUM_NW = os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'0_medium{PADMET_EXT}')
+BASE_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'0_base{PADMET_EXT}'),
+           SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'0_base{SBML_EXT}')}
 
-# # BLASTP GAPFILLING NETWORKS
-# BLASTP_GF_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'2_gapfilling_blastp{PADMET_EXT}'),
-#                 SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'2_gapfilling_blastp{SBML_EXT}')}
-#
-# # ENRICHMENT GAPFILLING NETWORKS
-# HOLOBIONT_GF_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'3_gapfilling_holobiont{PADMET_EXT}'),
-#                    SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'3_gapfilling_holobiont{SBML_EXT}')}
-#
-#
+
+def get_num_nw():
+    return len(os.listdir(os.path.join(OUTPUT, NETWORK_D, PADMET_D)))
+
+
+# BLASTP GAPFILLING NETWORKS
+def get_blastp_nw():
+    num = get_num_nw()
+    return {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'{num}_gapfilling_blastp{PADMET_EXT}'),
+            SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'{num}_gapfilling_blastp{SBML_EXT}')}
+
+
+# ENRICHMENT GAPFILLING NETWORKS
+def get_enrich_nw():
+    enrich_dict = dict()
+    groups_set = get_enrich_groups()
+    for group in groups_set:
+        enrich_dict[group] = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'{group}_gapfilling{PADMET_EXT}'),
+                              SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'{group}_gapfilling{SBML_EXT}')}
+    return enrich_dict
+
+
 # # FINAL GAPFILLING NETWORKS
 # FINAL_GF_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'5_gapfilling_final{PADMET_EXT}'),
 #                SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'5_gapfilling_final{SBML_EXT}')}
@@ -174,14 +187,21 @@ def create_dir_rec(dir_dict: Dict[str, List[str or Dict[...]]], path: str = ''):
                 create_dir_rec(child, os.path.join(path, parent_rep))
 
 
+def get_enrich_groups():
+    enrich_input_dir = os.path.join(INPUT, ENRICH_D)
+    groups = set()
+    if os.listdir(enrich_input_dir) != list():
+        for directory in os.listdir(enrich_input_dir):
+            groups.add(directory)
+    return groups
+
+
 def get_enrich_reactions_files():
     enrich_input_dir = os.path.join(INPUT, ENRICH_D)
     enrich_dict = dict()
-    if os.listdir(enrich_input_dir) != list():
-        for directory in os.listdir(enrich_input_dir):
-            enrich_dict[directory] = os.path.join(enrich_input_dir, directory, REACTIONS_TSV)
-    else:
-        print(f'Y a rien dans {enrich_input_dir}')
+    groups_set = get_enrich_groups()
+    for group in groups_set:
+        enrich_dict[group] = os.path.join(enrich_input_dir, group, REACTIONS_TSV)
     return enrich_dict
 
 
@@ -222,7 +242,9 @@ def check_step_required_files(step_num: int, group=None) -> bool:
     Parameters
     ----------
     step_num: int
-        Number of the step (1=blastp, 2=holobiont, 3=aucome)
+        Number of the step (1=blastp, 2=enrichment)
+    group: str (optional, default=None)
+        Specified group for enrichment step
 
     Returns
     -------
@@ -246,16 +268,22 @@ def check_step_required_files(step_num: int, group=None) -> bool:
 
     elif step_num == 2:
         if files_step[step_num] == dict():
-            logging.info(f'Not all files found to run the {names_list[step_num]} step, passing the step\n')
+            logging.info(f'No group directories for {names_list[step_num]} step, passing the step\n')
             return False
         elif group is None:
-            for group, path in files_step[step_num].items():
-                pass
+            all_pres = True
+            for g, path in files_step[step_num].items():
+                if not os.path.exists(path):
+                    logging.info(f'No reaction file for group {g}, --enrich={g} impossible')
+                    all_pres = False
+                else:
+                    logging.info(f'Reaction file found for group {g}, --enrich={g} possible')
+            return all_pres
         else:
-            pass
-
+            if not os.path.exists(files_step[step_num][group]):
+                logging.info(f'No reaction file for group {group}, no --enrich={group} possible')
+                return False
         return True
 
 
-
-print(check_step_required_files(2))
+print(get_enrich_nw())

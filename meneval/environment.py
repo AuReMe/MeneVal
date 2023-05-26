@@ -13,8 +13,7 @@ from typing import Dict, List
 INPUT = os.path.join('Input')
 OUTPUT = os.path.join('Output')
 
-AUCOME_D = 'AuCoMe'
-HOLOBIONT_D = 'Holobiont'
+ENRICH_D = 'Enrichment'
 DATABASE_D = 'DataBase'
 NETWORK_D = 'Networks'
 SEEDS_D = 'Seeds'
@@ -102,21 +101,18 @@ MEDIUM_NW = os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'1_medium{PADMET_EXT}')
 BASE_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'1_base{PADMET_EXT}'),
            SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'1_base{SBML_EXT}')}
 
-# BLASTP GAPFILLING NETWORKS
-BLASTP_GF_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'2_gapfilling_blastp{PADMET_EXT}'),
-                SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'2_gapfilling_blastp{SBML_EXT}')}
-
-# HOLOBIONT GAPFILLING NETWORKS
-HOLOBIONT_GF_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'3_gapfilling_holobiont{PADMET_EXT}'),
-                   SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'3_gapfilling_holobiont{SBML_EXT}')}
-
-# AUCOME GAPFILLING NETWORKS
-AUCOME_GF_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'4_gapfilling_aucome{PADMET_EXT}'),
-                SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'4_gapfilling_aucome{SBML_EXT}')}
-
-# FINAL GAPFILLING NETWORKS
-FINAL_GF_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'5_gapfilling_final{PADMET_EXT}'),
-               SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'5_gapfilling_final{SBML_EXT}')}
+# # BLASTP GAPFILLING NETWORKS
+# BLASTP_GF_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'2_gapfilling_blastp{PADMET_EXT}'),
+#                 SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'2_gapfilling_blastp{SBML_EXT}')}
+#
+# # ENRICHMENT GAPFILLING NETWORKS
+# HOLOBIONT_GF_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'3_gapfilling_holobiont{PADMET_EXT}'),
+#                    SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'3_gapfilling_holobiont{SBML_EXT}')}
+#
+#
+# # FINAL GAPFILLING NETWORKS
+# FINAL_GF_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'5_gapfilling_final{PADMET_EXT}'),
+#                SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'5_gapfilling_final{SBML_EXT}')}
 
 
 # INITIALIZATION =======================================================================================================
@@ -127,18 +123,16 @@ def create_folders():
     logging.info('Running init step : creating directories :\n'
                  '=========================================\n')
 
-    dir_archi = {INPUT: [AUCOME_D,
-                         DATABASE_D,
-                         HOLOBIONT_D,
+    dir_archi = {INPUT: [DATABASE_D,
+                         ENRICH_D,
                          SPECIES_D,
                          NETWORK_D,
                          SEEDS_D,
                          TARGETS_D,
                          ],
 
-                 OUTPUT: [AUCOME_D,
-                          BLASTP_D,
-                          HOLOBIONT_D,
+                 OUTPUT: [BLASTP_D,
+                          ENRICH_D,
                           {NETWORK_D: [PADMET_D,
                                        SBML_D]},
                           {MENECO_D: [FILTERED_D,
@@ -178,6 +172,17 @@ def create_dir_rec(dir_dict: Dict[str, List[str or Dict[...]]], path: str = ''):
                     logging.info(f'{child_path} already exists')
             else:
                 create_dir_rec(child, os.path.join(path, parent_rep))
+
+
+def get_enrich_reactions_files():
+    enrich_input_dir = os.path.join(INPUT, ENRICH_D)
+    enrich_dict = dict()
+    if os.listdir(enrich_input_dir) != list():
+        for directory in os.listdir(enrich_input_dir):
+            enrich_dict[directory] = os.path.join(enrich_input_dir, directory, REACTIONS_TSV)
+    else:
+        print(f'Y a rien dans {enrich_input_dir}')
+    return enrich_dict
 
 
 # CHECK ================================================================================================================
@@ -224,15 +229,24 @@ def check_step_required_files(step_num: int) -> bool:
     bool
         True if all required files to run the step are found, False otherwise
     """
-    names_list = ['', 'BLASTP', 'HOLOBIONT', 'AUCOME']
+    names_list = ['', 'BLASTP', 'ENRICHMENT']
     files_step = {1: [get_file_from_ext(os.path.join(INPUT, DATABASE_D), FASTA_EXT),
                       get_file_from_ext(os.path.join(INPUT, SPECIES_D), FAA_EXT)],
-                  2: [os.path.join(INPUT, HOLOBIONT_D, REACTIONS_TSV)],
-                  3: [os.path.join(INPUT, AUCOME_D, GROUPS_TSV),
-                      os.path.join(INPUT, AUCOME_D, REACTIONS_TSV)]}
+                  2: get_enrich_reactions_files()}
 
-    for file in files_step[step_num]:
-        if not os.path.exists(file):
-            logging.info(f'Not all files found to run the {names_list[step_num]} step, passing the step\n')
-            return False
-    return True
+    if step_num == 1:
+        for file in files_step[step_num]:
+            if file is None:
+                logging.info(f'Not all files found to run the {names_list[step_num]} step, passing the step\n')
+                return False
+            elif not os.path.exists(file):
+                logging.info(f'Not all files found to run the {names_list[step_num]} step, passing the step\n')
+                return False
+        return True
+
+    elif step_num == 2:
+        for group, path in files_step[step_num].items():
+
+
+
+print(check_step_required_files(2))

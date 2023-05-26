@@ -55,26 +55,13 @@ def blastp_step(meneco_tsv, meneco_filtered):
 
 
 # 2ND VALIDATION
-def holobiont_step(meneco_tsv, meneco_filtered):
-    name = 'Holobiont'
-    output = os.path.join(OUTPUT, HOLOBIONT_D)
-    reactions_tsv = os.path.join(INPUT, HOLOBIONT_D, REACTIONS_TSV)
+def enrichment_step(meneco_tsv, meneco_filtered, source_name):
+    output = os.path.join(OUTPUT, ENRICH_D)
+    reactions_tsv = os.path.join(INPUT, ENRICH_D, REACTIONS_TSV)
     # Run functions
     rxn_list = extract_rxn_from_meneco(meneco_tsv)
-    kept_rxn_set = validation_networks(name, output, rxn_list, reactions_tsv)
-    create_new_meneco_tsv(meneco_tsv, kept_rxn_set, meneco_filtered, f'Potential {name} source')
-
-
-# 3RD VALIDATION
-def aucome_step(meneco_tsv, meneco_filtered, group):
-    name = group
-    output = os.path.join(OUTPUT, AUCOME_D)
-    reactions_tsv = os.path.join(INPUT, AUCOME_D, REACTIONS_TSV)
-    group_template = os.path.join(INPUT, AUCOME_D, GROUPS_TSV)
-    # Run function
-    rxn_list = extract_rxn_from_meneco(meneco_tsv)
-    kept_rxn_set = validation_networks(name, output, rxn_list, reactions_tsv, group_template, group)
-    create_new_meneco_tsv(meneco_tsv, kept_rxn_set, meneco_filtered, f'Potential {name} source')
+    kept_rxn_set = validation_networks(source_name, output, rxn_list, reactions_tsv)
+    create_new_meneco_tsv(meneco_tsv, kept_rxn_set, meneco_filtered, f'Potential {source_name} source')
 
 
 def final_step(meneco_tsv, meneco_filtered):
@@ -83,9 +70,9 @@ def final_step(meneco_tsv, meneco_filtered):
 
 def run_step(num, group=None):
     # Get appropriated file
-    names_list = ['BLASTP', 'HOLOBIONT', 'AUCOME', 'FILL']
+    names_list = ['BLASTP', 'ENRICHMENT', 'FILL']
     name = names_list[num - 1]
-    networks_rank = [BASE_NW, BLASTP_GF_NW, HOLOBIONT_GF_NW, AUCOME_GF_NW, FINAL_GF_NW]
+    networks_rank = [BASE_NW]
 
     dict_nw = networks_rank[num]
     prev = num - 1
@@ -127,9 +114,7 @@ def run_step(num, group=None):
                 blastp_step(meneco_tsv, meneco_filtered)
                 add_genes_tsv(meneco_filtered)
             if name == names_list[1]:
-                holobiont_step(meneco_tsv, meneco_filtered)
-            if name == names_list[2]:
-                aucome_step(meneco_tsv, meneco_filtered, group)
+                enrichment_step(meneco_tsv, meneco_filtered, group)
             if name == names_list[3]:
                 final_step(meneco_tsv, meneco_filtered)
             logging.basicConfig(filename=LOG_FILE, level=logging.INFO, format='%(message)s', force=True)

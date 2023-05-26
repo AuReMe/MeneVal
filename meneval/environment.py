@@ -216,7 +216,7 @@ def check_required_files():
     logging.info('All files required found\n\n---------------\nCheck step done\n')
 
 
-def check_step_required_files(step_num: int) -> bool:
+def check_step_required_files(step_num: int, group=None) -> bool:
     """ Checks if all the files to run a step are found.
 
     Parameters
@@ -245,7 +245,16 @@ def check_step_required_files(step_num: int) -> bool:
         return True
 
     elif step_num == 2:
-        for group, path in files_step[step_num].items():
+        if files_step[step_num] == dict():
+            logging.info(f'Not all files found to run the {names_list[step_num]} step, passing the step\n')
+            return False
+        elif group is None:
+            for group, path in files_step[step_num].items():
+                pass
+        else:
+            pass
+
+        return True
 
 
 

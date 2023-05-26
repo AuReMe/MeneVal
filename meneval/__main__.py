@@ -40,8 +40,8 @@ def main():
     # RUN STEPS ========================================================================================================
 
     if blastp:
-        if check_step_required_files(1):
-            run_step(1, 'BLASTP')
+        if check_step_required_files('BLASTP'):
+            run_step('BLASTP')
 
     if enrich is not None:
         # if check_step_required_files(2):

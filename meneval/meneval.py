@@ -68,7 +68,7 @@ def final_step(meneco_tsv, meneco_filtered):
     shutil.copy(meneco_tsv, meneco_filtered)
 
 
-def run_step(num, name, group=None):
+def run_step(name, group=None):
     # Get appropriated file
     if name == 'BLASTP':
         dict_nw = get_blastp_nw()
@@ -76,13 +76,13 @@ def run_step(num, name, group=None):
         dict_nw = get_enrich_nw()[group]
     print(dict_nw)
 
+    num = get_num_nw()
     for nw in os.listdir(os.path.join(OUTPUT, NETWORK_D, PADMET_D)):
         if nw.startswith(str(num-1)):
             prev_network_padmet = os.path.join(OUTPUT, NETWORK_D, PADMET_D, nw)
     for nw in os.listdir(os.path.join(OUTPUT, NETWORK_D, SBML_D)):
         if nw.startswith(str(num-1)):
             prev_network_sbml = os.path.join(OUTPUT, NETWORK_D, SBML_D, nw)
-
     print(prev_network_sbml)
     print(prev_network_padmet)
 

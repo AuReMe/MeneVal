@@ -159,8 +159,8 @@ def get_uniprot_seq(uni_id: str, prot_fasta: dict) -> str:
         return ''
 
 
-def run_blastp(prot_seq: str, uniprot_id: str, rxn: str, species_proteome: str, seq_dir: str, blast_res_file: str) \
-        -> bool:
+def run_blastp(prot_seq: str, uniprot_id: str, rxn: str, species_proteome: str, seq_dir: str, blast_res_file: str,
+               e_value: float) -> bool:
     """Runs a Blastp of the protein sequence of the Uniprot ID associated with a reaction, against rhe species proteome.
     If there is a match, writes the result in the results file and returns True, otherwise just returns False.
 
@@ -178,6 +178,7 @@ def run_blastp(prot_seq: str, uniprot_id: str, rxn: str, species_proteome: str, 
         Directory where sequences are stored
     blast_res_file: str
         File to write results information of the blast
+    e_value
 
 
     Returns
@@ -195,7 +196,7 @@ def run_blastp(prot_seq: str, uniprot_id: str, rxn: str, species_proteome: str, 
         with open(query_fasta, 'w') as fquery:
             fquery.write(f'>{uniprot_id}\n{prot_seq}\n')
 
-    blastp_output = NcbiblastpCommandline(query=query_fasta, subject=species_proteome, evalue=1e-10,
+    blastp_output = NcbiblastpCommandline(query=query_fasta, subject=species_proteome, evalue=e_value,
                                           outfmt=out_fmt_arg)()[0]
     if blastp_output != '':
         with open(blast_res_file, 'a') as res_file:
@@ -206,8 +207,8 @@ def run_blastp(prot_seq: str, uniprot_id: str, rxn: str, species_proteome: str, 
     return False
 
 
-def run_tblastn(prot_seq: str, uniprot_id: str, rxn: str, species_genome: str, seq_dir: str, blast_res_file: str) \
-        -> bool:
+def run_tblastn(prot_seq: str, uniprot_id: str, rxn: str, species_genome: str, seq_dir: str, blast_res_file: str,
+                e_value: float) -> bool:
     """Runs a Tblastn of the protein sequence of the Uniprot ID associated with a reaction, against rhe species genome.
     If there is a match, writes the result in the results file and returns True, otherwise just returns False.
 
@@ -225,6 +226,7 @@ def run_tblastn(prot_seq: str, uniprot_id: str, rxn: str, species_genome: str, s
         Directory where sequences are stored
     blast_res_file: str
         File to write results information of the blast
+    e_value: float
 
     Returns
     -------
@@ -239,7 +241,7 @@ def run_tblastn(prot_seq: str, uniprot_id: str, rxn: str, species_genome: str, s
         with open(query_fasta, 'w') as fquery:
             fquery.write(f'>{uniprot_id}\n{prot_seq}\n')
 
-    tblastn_output = NcbitblastnCommandline(query=query_fasta, subject=species_genome, evalue=1e-10,
+    tblastn_output = NcbitblastnCommandline(query=query_fasta, subject=species_genome, evalue=e_value,
                                             outfmt=out_fmt_arg)()[0]
     if tblastn_output != '':
         with open(blast_res_file, 'a') as res_file:
@@ -253,7 +255,7 @@ def run_tblastn(prot_seq: str, uniprot_id: str, rxn: str, species_genome: str, s
 # MAIN FUNCTION ========================================================================================================
 
 def validation_blastp(rxn_list: List[str], output: str, db_padmet: str, prot_fasta: str, species_proteome: str,
-                      species_genome: str = None) -> Set[str]:
+                      species_genome: str = None, e_value: float = 1e-10) -> Set[str]:
     """
     1 - Create a dictionary associating to each reaction the set of Uniprot IDs associated to it in the MetaCyc padmet
         xrefs.
@@ -276,6 +278,7 @@ def validation_blastp(rxn_list: List[str], output: str, db_padmet: str, prot_fas
     prot_fasta: str
     species_proteome: str
     species_genome: str (default=None)
+    e_value: float
 
     Returns
     -------
@@ -314,14 +317,14 @@ def validation_blastp(rxn_list: List[str], output: str, db_padmet: str, prot_fas
             seq = get_uniprot_seq(uni_id, prot_fasta)
 
             # Blastp sp proteome
-            keep_rxn = run_blastp(seq, uni_id, rxn, species_proteome, seq_dir, blast_res_file)
+            keep_rxn = run_blastp(seq, uni_id, rxn, species_proteome, seq_dir, blast_res_file, e_value)
             # Keep reactions with alignment result
             if keep_rxn:
                 kept_rxn_set.add(rxn)
 
             # Tblastn if not kept
             elif tblastn:
-                keep_rxn = run_tblastn(seq, uni_id, rxn, species_genome, seq_dir, blast_res_file)
+                keep_rxn = run_tblastn(seq, uni_id, rxn, species_genome, seq_dir, blast_res_file, e_value)
                 # Keep reactions with alignment result
                 if keep_rxn:
                     kept_rxn_set.add(rxn)

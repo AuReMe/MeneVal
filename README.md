@@ -1,5 +1,27 @@
-# Meneco_validation
+# Meneval : Meneco validation
 Pipeline to run Meneco gapfilling tool and validate reactions proposed
+
+### Meneco Tool :
+
+- Uses Meneco for GapFilling problem solving
+
+S. Prigent et al., “Meneco, a Topology-Based Gap-Filling Tool Applicable to Degraded Genome-Wide Metabolic Networks,” PLOS Computational Biology, vol. 13, no. 1, p. e1005276, Jan. 2017. https://doi.org/10.1371/journal.pcbi.1005276
+
+GitHub : https://github.com/bioasp/meneco
+
+### Aucome Tool :
+
+- Uses Aucome results files for the aucome step
+
+GitHub : https://github.com/AuReMe/aucome
+
+### Padmet Tool :
+
+- Uses padmet networks format to manage all networks and padmets-utils functions.
+
+Aite, M., Chevallier, M., Frioux, C., Trottier, C., Got, J., Cortés, M. P., Mendoza, S. N., Carrier, G., Dameron, O., Guillaudeux, N., Latorre, M., Loira, N., Markov, G. V., Maass, A., and Siegel, A. (2018). Traceability, reproducibility and wiki-exploration for “à-la-carte” reconstructions of genome-scale metabolic models. PLOS Computational Biology, 14(5), e1006146. https://doi.org/10.1371/journal.pcbi.1006146
+
+GitHub : https://github.com/AuReMe/padmet
 
 ## Requirements
 
@@ -11,13 +33,13 @@ Pipeline to run Meneco gapfilling tool and validate reactions proposed
 ### Python packages
 
 - Pip packages required :
-  - biopython>=1.80
-  - Meneco>=2.0.2
+  - `biopython >= 1.80`
+  - `Meneco >= 2.0.2`
 
 
-- Coned packages required :
-  - aucomana : https://github.com/PaulineGHG/aucomana.git
-  - padmet : https://github.com/AuReMe/padmet.git
+- Cloned packages required :
+  - `aucomana` : https://github.com/PaulineGHG/aucomana.git
+  - `padmet` : https://github.com/AuReMe/padmet.git
 
 ## Installation
 

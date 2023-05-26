@@ -232,7 +232,10 @@ def check_step_required_files(step_num: int) -> bool:
                       os.path.join(INPUT, AUCOME_D, REACTIONS_TSV)]}
 
     for file in files_step[step_num]:
-        if not os.path.exists(file):
+        if file is None:
+            logging.info(f'Not all files found to run the {names_list[step_num]} step, passing the step\n')
+            return False
+        elif not os.path.exists(file):
             logging.info(f'Not all files found to run the {names_list[step_num]} step, passing the step\n')
             return False
     return True

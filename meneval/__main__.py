@@ -23,8 +23,6 @@ def main():
         check = True
         files_generation = True
         blastp = True
-        holobiont = True
-        aucome = True
         fill = True
 
     # INITIALIZATION AND CHECK =========================================================================================
@@ -40,15 +38,15 @@ def main():
     # RUN STEPS ========================================================================================================
 
     if blastp:
-        if check_step_required_files('BLASTP'):
-            run_step('BLASTP')
+        if check_step_required_files(BLASTP):
+            run_step(BLASTP)
 
     if enrich is not None:
-        # if check_step_required_files(2):
-        run_step(2, 'ENRICHMENT', group=enrich)
+        if check_step_required_files(ENRICH, enrich):
+            run_step(ENRICH, group=enrich)
 
     if fill:
-        run_step(3, 'FILL')
+        run_step(FILL)
         make_meneco_stats()
 
 

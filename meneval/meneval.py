@@ -1,18 +1,18 @@
 """
 INPUT FILES TO ADD :
     |- Input
-        |- AuCoMe
-            |- reactions.tsv : File reactions.tsv obtained from analysis step in AuCoMe run
-            |- group_template.tsv (opt) : File of group template for group species selection
         |- DataBase
             |- <DataBase>.padmet : DataBase with ".padmet" extension created from PGDB. Must have been created with
                 "--prot-ids70" option in pgdb_to_padmet --> will assign UNIPROT and PID ids to reactions in their xrefs
                 (with "_70" suffix)
             |- <prot_seq>.fasta : protein-seq-ids-reduced-70.fasta file created while generating MetaCyc padmet file
                 with "--prot-ids70" option
-        |- Holobiont
-            |- reactions.tsv : File reactions.tsv obtained with compare padmet from holobiont networks
-            |- group_template.tsv (opt) : File of group template for group species selection
+        |- Enrichment
+            |- <Group1>
+                |- reactions.tsv : File reactions.tsv obtained with compare padmet from holobiont networks
+            |- <Group2>
+                |- reactions.tsv : File reactions.tsv obtained with compare padmet from holobiont networks
+            |- ...
         |- Networks
             |- <sp>.padmet : Networks in ".padmet" for gap filling
         |- Seeds
@@ -55,36 +55,36 @@ def blastp_step(meneco_tsv, meneco_filtered):
 
 
 # 2ND VALIDATION
-def enrichment_step(meneco_tsv, meneco_filtered, source_name):
-    output = os.path.join(OUTPUT, ENRICH_D)
-    reactions_tsv = os.path.join(INPUT, ENRICH_D, REACTIONS_TSV)
+def enrichment_step(meneco_tsv, meneco_filtered, group):
+    output = os.path.join(OUTPUT, ENRICH_D, group)
+    os.mkdir(output)
+    reactions_tsv = os.path.join(INPUT, ENRICH_D, group, REACTIONS_TSV)
     # Run functions
     rxn_list = extract_rxn_from_meneco(meneco_tsv)
-    kept_rxn_set = validation_networks(source_name, output, rxn_list, reactions_tsv)
-    create_new_meneco_tsv(meneco_tsv, kept_rxn_set, meneco_filtered, f'Potential {source_name} source')
+    kept_rxn_set = validation_networks(group, output, rxn_list, reactions_tsv)
+    create_new_meneco_tsv(meneco_tsv, kept_rxn_set, meneco_filtered, f'Potential {group} source')
 
 
 def final_step(meneco_tsv, meneco_filtered):
     shutil.copy(meneco_tsv, meneco_filtered)
 
 
+def get_prev_networks(num):
+    for file in os.listdir(os.path.join(OUTPUT, NETWORK_D, PADMET_D)):
+        file = str(file)
+        file_comp = get_file_comp(file)
+        if file_comp[0] == num-1:
+            prev_network_padmet = os.path.join(OUTPUT, NETWORK_D, PADMET_D, file)
+            prev_network_sbml = os.path.join(OUTPUT, NETWORK_D, SBML_D, file.split('.')[0] + SBML_EXT)
+            return prev_network_padmet, prev_network_sbml
+    logging.info(f'No previous networks found for step number {num}')
+
+
 def run_step(name, group=None):
     # Get appropriated file
-    if name == 'BLASTP':
-        dict_nw = get_blastp_nw()
-    if name == 'ENRICHMENT':
-        dict_nw = get_enrich_nw()[group]
-    print(dict_nw)
-
-    num = get_num_nw()
-    for nw in os.listdir(os.path.join(OUTPUT, NETWORK_D, PADMET_D)):
-        if nw.startswith(str(num-1)):
-            prev_network_padmet = os.path.join(OUTPUT, NETWORK_D, PADMET_D, nw)
-    for nw in os.listdir(os.path.join(OUTPUT, NETWORK_D, SBML_D)):
-        if nw.startswith(str(num-1)):
-            prev_network_sbml = os.path.join(OUTPUT, NETWORK_D, SBML_D, nw)
-    print(prev_network_sbml)
-    print(prev_network_padmet)
+    dict_nw = get_nw_path(name, group)
+    num = get_num(name, group)
+    prev_network_padmet, prev_network_sbml = get_prev_networks(num)
 
     # Begin step
     logging.info(f'{50 * "="}\n\tSTEP {num} : MENECO + {name} VALIDATION\n{50 * "="}\n')
@@ -111,12 +111,12 @@ def run_step(name, group=None):
         # Validation step
         logging.info(f'\nRunning {name} validation step :\n{40 * "-"}\n')
         if not os.path.exists(meneco_filtered):
-            if name == 'BLASTP':
+            if name == BLASTP:
                 blastp_step(meneco_tsv, meneco_filtered)
                 add_genes_tsv(meneco_filtered)
-            if name == 'ENRICHMENT':
+            if name == ENRICH:
                 enrichment_step(meneco_tsv, meneco_filtered, group)
-            if name == 'FILL':
+            if name == FILL:
                 final_step(meneco_tsv, meneco_filtered)
             logging.basicConfig(filename=LOG_FILE, level=logging.INFO, format='%(message)s', force=True)
         else:

@@ -44,6 +44,10 @@ FASTA_EXT = '.fasta'
 FAA_EXT = '.faa'
 SBML_EXT = '.sbml'
 
+BLASTP = 'BLASTP'
+ENRICH = 'ENRICHMENT'
+FILL = 'FILL'
+
 
 # UTILITY FUNCTIONS ====================================================================================================
 def get_file_from_ext(path: str, ext: str):
@@ -102,30 +106,68 @@ BASE_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'0_base{PADMET_E
            SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'0_base{SBML_EXT}')}
 
 
-def get_num_nw():
-    return len(os.listdir(os.path.join(OUTPUT, NETWORK_D, PADMET_D)))
+def get_file_comp(file: str) -> List:
+    """ Returns the decomposition of elements of a file name to the list of elements
+    Examples: 1_Group1_ENRICH.padmet -> [1, Group1, ENRICH, padmet]
+
+    Parameters
+    ----------
+    file: str
+        Name of the file
+
+    Returns
+    -------
+    List
+        List of file name elements
+    """
+    file = file.split('.')
+    name = file[0].split('_')
+    name[0] = int(name[0])
+    return name + [file[1]]
 
 
-# BLASTP GAPFILLING NETWORKS
-def get_blastp_nw():
-    num = get_num_nw()
-    return {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'{num}_gapfilling_blastp{PADMET_EXT}'),
-            SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'{num}_gapfilling_blastp{SBML_EXT}')}
+def get_num(step: str, group: str = None) -> int:
+    """ Return the number of the step basing on number of step already done. If the current step files are found,
+    return the number given in the already done step.
+
+    Parameters
+    ----------
+    step: str
+        Name of the step to find number associated with
+    group: str (optional)
+        Group name for enrichment step
+
+    Returns
+    -------
+    int
+        Number of the step.
+    """
+    num = len(os.listdir(os.path.join(OUTPUT, NETWORK_D, PADMET_D)))
+    for file in os.listdir(os.path.join(OUTPUT, NETWORK_D, PADMET_D)):
+        file_comp = get_file_comp(file)
+        if step == ENRICH and file_comp[1] == group:
+            return file_comp[0]
+        elif step != ENRICH and file_comp[0] == num - 1 and file_comp[-2] == step:
+            return file_comp[0]
+    return num
 
 
-# ENRICHMENT GAPFILLING NETWORKS
-def get_enrich_nw():
-    enrich_dict = dict()
-    groups_set = get_enrich_groups()
-    for group in groups_set:
-        enrich_dict[group] = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'{group}_gapfilling{PADMET_EXT}'),
-                              SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'{group}_gapfilling{SBML_EXT}')}
-    return enrich_dict
+# GAPFILLING NETWORKS
+def get_nw_path(step, group=None) -> Dict[str, str]:
+    """ Returns Network files name for PADMET and SBML extensions in a dictionary.
 
-
-# # FINAL GAPFILLING NETWORKS
-# FINAL_GF_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'5_gapfilling_final{PADMET_EXT}'),
-#                SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'5_gapfilling_final{SBML_EXT}')}
+    Returns
+    -------
+    Dict[str, str]
+        Network files name for PADMET and SBML extensions.
+    """
+    num = get_num(step, group)
+    if step == ENRICH:
+        return {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'{num}_{group}_{ENRICH}{PADMET_EXT}'),
+                SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'{num}_{group}_{ENRICH}{SBML_EXT}')}
+    else:
+        return {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'{num}_{step}{PADMET_EXT}'),
+                SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'{num}_{step}{SBML_EXT}')}
 
 
 # INITIALIZATION =======================================================================================================
@@ -229,20 +271,19 @@ def check_required_files():
         if not os.path.exists(file):
             raise OSError(f'No file {file} found')
 
-    check_step_required_files(1)
-    check_step_required_files(2)
-    check_step_required_files(3)
+    check_step_required_files(BLASTP)
+    check_step_required_files(ENRICH)
 
     logging.info('All files required found\n\n---------------\nCheck step done\n')
 
 
-def check_step_required_files(step_num: int, group=None) -> bool:
+def check_step_required_files(step: str, group=None) -> bool:
     """ Checks if all the files to run a step are found.
 
     Parameters
     ----------
-    step_num: int
-        Number of the step (1=blastp, 2=enrichment)
+    step: str
+        Step
     group: str (optional, default=None)
         Specified group for enrichment step
 
@@ -251,28 +292,27 @@ def check_step_required_files(step_num: int, group=None) -> bool:
     bool
         True if all required files to run the step are found, False otherwise
     """
-    names_list = ['', 'BLASTP', 'ENRICHMENT']
-    files_step = {1: [get_file_from_ext(os.path.join(INPUT, DATABASE_D), FASTA_EXT),
-                      get_file_from_ext(os.path.join(INPUT, SPECIES_D), FAA_EXT)],
-                  2: get_enrich_reactions_files()}
+    files_step = {BLASTP: [get_file_from_ext(os.path.join(INPUT, DATABASE_D), FASTA_EXT),
+                           get_file_from_ext(os.path.join(INPUT, SPECIES_D), FAA_EXT)],
+                  ENRICH: get_enrich_reactions_files()}
 
-    if step_num == 1:
-        for file in files_step[step_num]:
+    if step == BLASTP:
+        for file in files_step[step]:
             if file is None:
-                logging.info(f'Not all files found to run the {names_list[step_num]} step, passing the step\n')
+                logging.info(f'Not all files found to run the {step} step, passing the step\n')
                 return False
             elif not os.path.exists(file):
-                logging.info(f'Not all files found to run the {names_list[step_num]} step, passing the step\n')
+                logging.info(f'Not all files found to run the {step} step, passing the step\n')
                 return False
         return True
 
-    elif step_num == 2:
-        if files_step[step_num] == dict():
-            logging.info(f'No group directories for {names_list[step_num]} step, passing the step\n')
+    elif step == ENRICH:
+        if files_step[step] == dict():
+            logging.info(f'No group directories for {step} step, passing the step\n')
             return False
         elif group is None:
             all_pres = True
-            for g, path in files_step[step_num].items():
+            for g, path in files_step[step].items():
                 if not os.path.exists(path):
                     logging.info(f'No reaction file for group {g}, --enrich={g} impossible')
                     all_pres = False
@@ -280,10 +320,7 @@ def check_step_required_files(step_num: int, group=None) -> bool:
                     logging.info(f'Reaction file found for group {g}, --enrich={g} possible')
             return all_pres
         else:
-            if not os.path.exists(files_step[step_num][group]):
+            if not os.path.exists(files_step[step][group]):
                 logging.info(f'No reaction file for group {group}, no --enrich={group} possible')
                 return False
         return True
-
-
-print(get_enrich_nw())

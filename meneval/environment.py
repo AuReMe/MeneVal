@@ -262,15 +262,21 @@ def get_enrich_reactions_files() -> Dict[str, str]:
     return enrich_dict
 
 
-def check_enrich_sbml_files(path):
-    sbml_files = [x for x in os.listdir(path) if x.endswith(SBML_EXT)]
-    if len(sbml_files) > 0:
-        sbml_path = os.path.join(path, SBML_D)
-        os.mkdir(sbml_path)
-        for sbml in sbml_files:
-            os.rename(os.path.join(path, sbml), os.path.join(sbml_path, sbml))
-        return True
-    return False
+def check_enrich_networks_files(path, ext):
+    nw_dir_assoc = {SBML_EXT: SBML_D,
+                    PADMET_EXT: PADMET_D}
+    nw_dir = os.path.join(path, nw_dir_assoc[ext])
+    if not os.path.exists(nw_dir):
+        files = [x for x in os.listdir(path) if x.endswith(ext)]
+        if len(files) > 0:
+            os.mkdir(nw_dir)
+            for nw in files:
+                os.rename(os.path.join(path, nw), os.path.join(nw_dir, nw))
+            return True
+        return False
+    else:
+        files = [x for x in os.listdir(nw_dir) if x.endswith(ext)]
+        return len(files) > 0
 
 
 # CHECK ================================================================================================================
@@ -286,8 +292,7 @@ def check_required_files():
     files_required = [os.path.join(INPUT, TARGETS_D, IN_TARGETS),
                       os.path.join(INPUT, SEEDS_D, IN_SEEDS),
                       os.path.join(INPUT, SEEDS_D, IN_ARTEFACTS),
-                      get_file_from_ext(os.path.join(INPUT, DATABASE_D), PADMET_EXT),
-                      get_file_from_ext(os.path.join(INPUT, NETWORK_D), PADMET_EXT)
+                      get_file_from_ext(os.path.join(INPUT, DATABASE_D), PADMET_EXT)
                       ]
 
     logging.info('Running Check step\n'
@@ -296,6 +301,12 @@ def check_required_files():
     for file in files_required:
         if not os.path.exists(file):
             raise OSError(f'No file {file} found')
+
+    padmet_network = get_file_from_ext(os.path.join(INPUT, NETWORK_D), PADMET_EXT)
+    if padmet_network is None:
+        sbml_network = get_file_from_ext(os.path.join(INPUT, NETWORK_D), SBML_EXT)
+        if sbml_network is None:
+            raise OSError(f'No PADMET or SBML network found in {os.path.join(INPUT, NETWORK_D)}')
 
     check_step_required_files(BLASTP)
     check_step_required_files(ENRICH)
@@ -340,13 +351,27 @@ def check_step_required_files(step: str, group=None) -> bool:
             all_pres = True
             for g, path in files_step[step].items():
                 if not os.path.exists(path):
-                    logging.info(f'No reaction file for group {g}, --enrich={g} impossible')
-                    all_pres = False
+                    logging.info(f'No reaction file for group {g}, checking PADMET network presence')
+                    if not check_enrich_networks_files(os.path.join(INPUT, ENRICH_D, g), PADMET_EXT):
+                        logging.info(f'No PADMET network(s) for group {g}, checking SBML network presence')
+                        if not check_enrich_networks_files(os.path.join(INPUT, ENRICH_D, g), SBML_EXT):
+                            logging.info(f'No reaction file or PADMET networks or SBML networks for group {g}, '
+                                         f'--enrich={g} impossible')
+                            all_pres = False
+                        else:
+                            logging.info(f'SBML network(s) found for group {g}, --enrich={g} possible')
+                    else:
+                        logging.info(f'PADMET network(s) found for group {g}, --enrich={g} possible')
                 else:
                     logging.info(f'Reaction file found for group {g}, --enrich={g} possible')
             return all_pres
         else:
             if not os.path.exists(files_step[step][group]):
-                logging.info(f'No reaction file for group {group}, no --enrich={group} possible')
-                return False
+                logging.info(f'No reaction file for group {group}, checking PADMET network presence')
+                if not check_enrich_networks_files(os.path.join(INPUT, ENRICH_D, group), PADMET_EXT):
+                    logging.info(f'No PADMET network for group {group}, checking SBML network presence')
+                    if not check_enrich_networks_files(os.path.join(INPUT, ENRICH_D, group), SBML_EXT):
+                        logging.info(f'No reaction file or PADMET networks or SBML networks for group {group}, '
+                                     f'--enrich={group} impossible')
+                        return False
         return True

@@ -8,7 +8,7 @@ def get_command_line_args():
     parser.add_argument('--check', action='store_true', required=False, help='Check for required input files')
     parser.add_argument('--files', action='store_true', required=False, help='generate additional required input files')
     parser.add_argument('--blastp', action='store_true', required=False, help='Runs blastp step')
-    parser.add_argument('--enrich', type=str, required=False, metavar='group name', help='Group name for aucome step')
+    parser.add_argument('--enrich', type=str, required=False, metavar='group name', help='Group for enrichment step')
     parser.add_argument('--fill', action='store_true', required=False, help='Runs fill step')
     parser.add_argument('--workflow', action='store_true', required=False, help='Runs all steps')
     args = parser.parse_args()

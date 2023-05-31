@@ -9,9 +9,9 @@ INPUT FILES TO ADD :
                 with "--prot-ids70" option
         |- Enrichment
             |- <Group1>
-                |- reactions.tsv : File reactions.tsv obtained with compare padmet from holobiont networks
+                |- reactions.tsv : File reactions.tsv obtained with compare padmet from <Group1> networks
             |- <Group2>
-                |- reactions.tsv : File reactions.tsv obtained with compare padmet from holobiont networks
+                |- reactions.tsv : File reactions.tsv obtained with compare padmet from <Group2> networks
             |- ...
         |- Networks
             |- <sp>.padmet : Networks in ".padmet" for gap filling

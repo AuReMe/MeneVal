@@ -5,6 +5,7 @@ The check will verify if all the required files are placed in the corrects folde
 """
 import os
 import logging
+import shutil
 from typing import Dict, List, Set
 
 # BASE ENVIRONMENT =====================================================================================================
@@ -259,6 +260,17 @@ def get_enrich_reactions_files() -> Dict[str, str]:
     for group in groups_set:
         enrich_dict[group] = os.path.join(enrich_input_dir, group, REACTIONS_TSV)
     return enrich_dict
+
+
+def check_enrich_sbml_files(path):
+    sbml_files = [x for x in os.listdir(path) if x.endswith(SBML_EXT)]
+    if len(sbml_files) > 0:
+        sbml_path = os.path.join(path, SBML_D)
+        os.mkdir(sbml_path)
+        for sbml in sbml_files:
+            os.rename(os.path.join(path, sbml), os.path.join(sbml_path, sbml))
+        return True
+    return False
 
 
 # CHECK ================================================================================================================

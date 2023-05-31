@@ -5,7 +5,7 @@ The check will verify if all the required files are placed in the corrects folde
 """
 import os
 import logging
-from typing import Dict, List
+from typing import Dict, List, Set
 
 # BASE ENVIRONMENT =====================================================================================================
 
@@ -229,7 +229,14 @@ def create_dir_rec(dir_dict: Dict[str, List[str or Dict[...]]], path: str = ''):
                 create_dir_rec(child, os.path.join(path, parent_rep))
 
 
-def get_enrich_groups():
+def get_enrich_groups() -> Set[str]:
+    """ Returns the set of groups for enrichment step according to folders name in the input enrichment folder.
+
+    Returns
+    -------
+    Set[str]
+        Set of groups for enrichment step
+    """
     enrich_input_dir = os.path.join(INPUT, ENRICH_D)
     groups = set()
     if os.listdir(enrich_input_dir) != list():
@@ -238,7 +245,14 @@ def get_enrich_groups():
     return groups
 
 
-def get_enrich_reactions_files():
+def get_enrich_reactions_files() -> Dict[str, str]:
+    """ Returns for each group of enrichment step, its path to its associated reactions.tsv file.
+
+    Returns
+    -------
+    Dict[str, str]
+        Dictionary associating for each group of enrichment step, its path to its associated reactions.tsv file
+    """
     enrich_input_dir = os.path.join(INPUT, ENRICH_D)
     enrich_dict = dict()
     groups_set = get_enrich_groups()

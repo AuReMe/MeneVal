@@ -1,0 +1,62 @@
+{
+    "Draft network file": "Output/Networks/SBML/0_base.sbml",
+    "Seeds file": "Input/Seeds/seeds_artefacts.sbml",
+    "Targets file": "Input/Targets/targets.sbml",
+    "Unproducible targets": [
+        "M_LYS_c",
+        "M_MET_c",
+        "M_PRO_c"
+    ],
+    "Repair db file": "Input/DataBase/database.sbml",
+    "Unreconstructable targets": [],
+    "Reconstructable targets": [
+        "M_LYS_c",
+        "M_MET_c",
+        "M_PRO_c"
+    ],
+    "Essential reactions": {
+        "M_LYS_c": [
+            "R_2__45__AMINOADIPATE__45__AMINOTRANSFERASE__45__RXN",
+            "R_RXN__45__16756"
+        ],
+        "M_MET_c": [
+            "R_RXN__45__19380"
+        ],
+        "M_PRO_c": []
+    },
+    "One minimal completion": [
+        "R_2__45__AMINOADIPATE__45__AMINOTRANSFERASE__45__RXN",
+        "R_HOMOCITRATE__45__SYNTHASE__45__RXN",
+        "R_L__45__LYSINE__45__AMINOTRANSFERASE__45__RXN",
+        "R_ORNITHINE__45__CYCLODEAMINASE__45__RXN",
+        "R_RXN__45__13722",
+        "R_RXN__45__16756",
+        "R_RXN__45__19380",
+        "R_RXN__45__22438",
+        "R_RXN__45__7970"
+    ],
+    "Intersection of cardinality minimal completions": [
+        "R_2__45__AMINOADIPATE__45__AMINOTRANSFERASE__45__RXN",
+        "R_HOMOCITRATE__45__SYNTHASE__45__RXN",
+        "R_ORNITHINE__45__CYCLODEAMINASE__45__RXN",
+        "R_RXN__45__13722",
+        "R_RXN__45__16756",
+        "R_RXN__45__19380",
+        "R_RXN__45__7970"
+    ],
+    "Union of cardinality minimal completions": [
+        "R_2__45__AMINOADIPATE__45__AMINOTRANSFERASE__45__RXN",
+        "R_HOMOCITRATE__45__SYNTHASE__45__RXN",
+        "R_LYSINE__45____45__PYRUVATE__45__6__45__AMINOTRANSFERASE__45__RXN",
+        "R_L__45__LYSINE__45__AMINOTRANSFERASE__45__RXN",
+        "R_ORNITHINE__45__CYCLODEAMINASE__45__RXN",
+        "R_RXN__45__13722",
+        "R_RXN__45__16756",
+        "R_RXN__45__19380",
+        "R_RXN__45__21797",
+        "R_RXN__45__21991",
+        "R_RXN__45__22438",
+        "R_RXN__45__5061",
+        "R_RXN__45__7970"
+    ]
+}

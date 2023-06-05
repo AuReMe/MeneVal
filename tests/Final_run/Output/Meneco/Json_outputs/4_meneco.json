@@ -1,0 +1,25 @@
+{
+    "Draft network file": "Output/Networks/SBML/3_Group1_ENRICHMENT.sbml",
+    "Seeds file": "Input/Seeds/seeds_artefacts.sbml",
+    "Targets file": "Input/Targets/targets.sbml",
+    "Unproducible targets": [
+        "M_PRO_c"
+    ],
+    "Repair db file": "Input/DataBase/database.sbml",
+    "Unreconstructable targets": [],
+    "Reconstructable targets": [
+        "M_PRO_c"
+    ],
+    "Essential reactions": {
+        "M_PRO_c": []
+    },
+    "One minimal completion": [
+        "R_ORNITHINE__45__CYCLODEAMINASE__45__RXN"
+    ],
+    "Intersection of cardinality minimal completions": [
+        "R_ORNITHINE__45__CYCLODEAMINASE__45__RXN"
+    ],
+    "Union of cardinality minimal completions": [
+        "R_ORNITHINE__45__CYCLODEAMINASE__45__RXN"
+    ]
+}

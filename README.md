@@ -9,12 +9,6 @@ S. Prigent et al., “Meneco, a Topology-Based Gap-Filling Tool Applicable to De
 
 GitHub : https://github.com/bioasp/meneco
 
-### Aucome Tool :
-
-- Uses Aucome results files for the aucome step
-
-GitHub : https://github.com/AuReMe/aucome
-
 ### Padmet Tool :
 
 - Uses padmet networks format to manage all networks and padmets-utils functions.
@@ -70,10 +64,7 @@ meneval --files
 meneval --blastp
 ```
 ```commandline
-meneval --holobiont
-```
-```commandline
-meneval --aucome --group=group
+meneval --enrich Group
 ```
 ```commandline
 meneval --fill

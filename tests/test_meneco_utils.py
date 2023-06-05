@@ -142,7 +142,7 @@ class Test(unittest.TestCase):
     def test_exists_not_producible_targets(self):
         json_true1 = os.path.join(OUTPUT, MENECO_D, TOOL_OUTPUTS_D, '1_meneco.json')
         json_true2 = os.path.join(OUTPUT, MENECO_D, TOOL_OUTPUTS_D, '3_meneco.json')
-        json_false = os.path.join(OUTPUT, MENECO_D, TOOL_OUTPUTS_D, '4_meneco.json')
+        json_false = os.path.join(OUTPUT, MENECO_D, TOOL_OUTPUTS_D, '5_meneco.json')
         self.assertTrue(exists_not_producible_targets(json_true1))
         self.assertTrue(exists_not_producible_targets(json_true2))
         self.assertFalse(exists_not_producible_targets(json_false))

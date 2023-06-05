@@ -5,7 +5,8 @@ The check will verify if all the required files are placed in the corrects folde
 """
 import os
 import logging
-from typing import Dict, List
+import shutil
+from typing import Dict, List, Set
 
 # BASE ENVIRONMENT =====================================================================================================
 
@@ -13,8 +14,7 @@ from typing import Dict, List
 INPUT = os.path.join('Input')
 OUTPUT = os.path.join('Output')
 
-AUCOME_D = 'AuCoMe'
-HOLOBIONT_D = 'Holobiont'
+ENRICH_D = 'Enrichment'
 DATABASE_D = 'DataBase'
 NETWORK_D = 'Networks'
 SEEDS_D = 'Seeds'
@@ -44,6 +44,10 @@ PADMET_EXT = '.padmet'
 FASTA_EXT = '.fasta'
 FAA_EXT = '.faa'
 SBML_EXT = '.sbml'
+
+BLASTP = 'BLASTP'
+ENRICH = 'ENRICHMENT'
+FILL = 'FILL'
 
 
 # UTILITY FUNCTIONS ====================================================================================================
@@ -98,25 +102,73 @@ DB_SBML = os.path.join(INPUT, DATABASE_D, f'database{SBML_EXT}')
 
 # START NETWORKS
 
-MEDIUM_NW = os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'1_medium{PADMET_EXT}')
-BASE_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'1_base{PADMET_EXT}'),
-           SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'1_base{SBML_EXT}')}
+MEDIUM_NW = os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'0_medium{PADMET_EXT}')
+BASE_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'0_base{PADMET_EXT}'),
+           SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'0_base{SBML_EXT}')}
 
-# BLASTP GAPFILLING NETWORKS
-BLASTP_GF_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'2_gapfilling_blastp{PADMET_EXT}'),
-                SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'2_gapfilling_blastp{SBML_EXT}')}
 
-# HOLOBIONT GAPFILLING NETWORKS
-HOLOBIONT_GF_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'3_gapfilling_holobiont{PADMET_EXT}'),
-                   SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'3_gapfilling_holobiont{SBML_EXT}')}
+def get_file_comp(file: str) -> List:
+    """ Returns the decomposition of elements of a file name to the list of elements
+    Examples: 1_Group1_ENRICH.padmet -> [1, Group1, ENRICH, padmet]
 
-# AUCOME GAPFILLING NETWORKS
-AUCOME_GF_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'4_gapfilling_aucome{PADMET_EXT}'),
-                SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'4_gapfilling_aucome{SBML_EXT}')}
+    Parameters
+    ----------
+    file: str
+        Name of the file
 
-# FINAL GAPFILLING NETWORKS
-FINAL_GF_NW = {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'5_gapfilling_final{PADMET_EXT}'),
-               SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'5_gapfilling_final{SBML_EXT}')}
+    Returns
+    -------
+    List
+        List of file name elements
+    """
+    file = file.split('.')
+    name = file[0].split('_')
+    name[0] = int(name[0])
+    return name + [file[1]]
+
+
+def get_num(step: str, group: str = None) -> int:
+    """ Return the number of the step basing on number of step already done. If the current step files are found,
+    return the number given in the already done step.
+
+    Parameters
+    ----------
+    step: str
+        Name of the step to find number associated with
+    group: str (optional)
+        Group name for enrichment step
+
+    Returns
+    -------
+    int
+        Number of the step.
+    """
+    num = len(os.listdir(os.path.join(OUTPUT, NETWORK_D, PADMET_D)))
+    for file in os.listdir(os.path.join(OUTPUT, NETWORK_D, PADMET_D)):
+        file_comp = get_file_comp(file)
+        if step == ENRICH and file_comp[1] == group:
+            return file_comp[0]
+        elif step != ENRICH and file_comp[-2] == step:
+            return file_comp[0]
+    return num
+
+
+# GAPFILLING NETWORKS
+def get_nw_path(step, group=None) -> Dict[str, str]:
+    """ Returns Network files name for PADMET and SBML extensions in a dictionary.
+
+    Returns
+    -------
+    Dict[str, str]
+        Network files name for PADMET and SBML extensions.
+    """
+    num = get_num(step, group)
+    if step == ENRICH:
+        return {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'{num}_{group}_{ENRICH}{PADMET_EXT}'),
+                SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'{num}_{group}_{ENRICH}{SBML_EXT}')}
+    else:
+        return {PADMET_D: os.path.join(OUTPUT, NETWORK_D, PADMET_D, f'{num}_{step}{PADMET_EXT}'),
+                SBML_D: os.path.join(OUTPUT, NETWORK_D, SBML_D, f'{num}_{step}{SBML_EXT}')}
 
 
 # INITIALIZATION =======================================================================================================
@@ -127,18 +179,16 @@ def create_folders():
     logging.info('Running init step : creating directories :\n'
                  '=========================================\n')
 
-    dir_archi = {INPUT: [AUCOME_D,
-                         DATABASE_D,
-                         HOLOBIONT_D,
+    dir_archi = {INPUT: [DATABASE_D,
+                         ENRICH_D,
                          SPECIES_D,
                          NETWORK_D,
                          SEEDS_D,
                          TARGETS_D,
                          ],
 
-                 OUTPUT: [AUCOME_D,
-                          BLASTP_D,
-                          HOLOBIONT_D,
+                 OUTPUT: [BLASTP_D,
+                          ENRICH_D,
                           {NETWORK_D: [PADMET_D,
                                        SBML_D]},
                           {MENECO_D: [FILTERED_D,
@@ -180,6 +230,55 @@ def create_dir_rec(dir_dict: Dict[str, List[str or Dict[...]]], path: str = ''):
                 create_dir_rec(child, os.path.join(path, parent_rep))
 
 
+def get_enrich_groups() -> Set[str]:
+    """ Returns the set of groups for enrichment step according to folders name in the input enrichment folder.
+
+    Returns
+    -------
+    Set[str]
+        Set of groups for enrichment step
+    """
+    enrich_input_dir = os.path.join(INPUT, ENRICH_D)
+    groups = set()
+    if os.listdir(enrich_input_dir) != list():
+        for directory in os.listdir(enrich_input_dir):
+            groups.add(directory)
+    return groups
+
+
+def get_enrich_reactions_files() -> Dict[str, str]:
+    """ Returns for each group of enrichment step, its path to its associated reactions.tsv file.
+
+    Returns
+    -------
+    Dict[str, str]
+        Dictionary associating for each group of enrichment step, its path to its associated reactions.tsv file
+    """
+    enrich_input_dir = os.path.join(INPUT, ENRICH_D)
+    enrich_dict = dict()
+    groups_set = get_enrich_groups()
+    for group in groups_set:
+        enrich_dict[group] = os.path.join(enrich_input_dir, group, REACTIONS_TSV)
+    return enrich_dict
+
+
+def check_enrich_networks_files(path, ext):
+    nw_dir_assoc = {SBML_EXT: SBML_D,
+                    PADMET_EXT: PADMET_D}
+    nw_dir = os.path.join(path, nw_dir_assoc[ext])
+    if not os.path.exists(nw_dir):
+        files = [x for x in os.listdir(path) if x.endswith(ext)]
+        if len(files) > 0:
+            os.mkdir(nw_dir)
+            for nw in files:
+                os.rename(os.path.join(path, nw), os.path.join(nw_dir, nw))
+            return True
+        return False
+    else:
+        files = [x for x in os.listdir(nw_dir) if x.endswith(ext)]
+        return len(files) > 0
+
+
 # CHECK ================================================================================================================
 
 def check_required_files():
@@ -193,8 +292,7 @@ def check_required_files():
     files_required = [os.path.join(INPUT, TARGETS_D, IN_TARGETS),
                       os.path.join(INPUT, SEEDS_D, IN_SEEDS),
                       os.path.join(INPUT, SEEDS_D, IN_ARTEFACTS),
-                      get_file_from_ext(os.path.join(INPUT, DATABASE_D), PADMET_EXT),
-                      get_file_from_ext(os.path.join(INPUT, NETWORK_D), PADMET_EXT)
+                      get_file_from_ext(os.path.join(INPUT, DATABASE_D), PADMET_EXT)
                       ]
 
     logging.info('Running Check step\n'
@@ -204,38 +302,76 @@ def check_required_files():
         if not os.path.exists(file):
             raise OSError(f'No file {file} found')
 
-    check_step_required_files(1)
-    check_step_required_files(2)
-    check_step_required_files(3)
+    padmet_network = get_file_from_ext(os.path.join(INPUT, NETWORK_D), PADMET_EXT)
+    if padmet_network is None:
+        sbml_network = get_file_from_ext(os.path.join(INPUT, NETWORK_D), SBML_EXT)
+        if sbml_network is None:
+            raise OSError(f'No PADMET or SBML network found in {os.path.join(INPUT, NETWORK_D)}')
+
+    check_step_required_files(BLASTP)
+    check_step_required_files(ENRICH)
 
     logging.info('All files required found\n\n---------------\nCheck step done\n')
 
 
-def check_step_required_files(step_num: int) -> bool:
+def check_step_required_files(step: str, group=None) -> bool:
     """ Checks if all the files to run a step are found.
 
     Parameters
     ----------
-    step_num: int
-        Number of the step (1=blastp, 2=holobiont, 3=aucome)
+    step: str
+        Step
+    group: str (optional, default=None)
+        Specified group for enrichment step
 
     Returns
     -------
     bool
         True if all required files to run the step are found, False otherwise
     """
-    names_list = ['', 'BLASTP', 'HOLOBIONT', 'AUCOME']
-    files_step = {1: [get_file_from_ext(os.path.join(INPUT, DATABASE_D), FASTA_EXT),
-                      get_file_from_ext(os.path.join(INPUT, SPECIES_D), FAA_EXT)],
-                  2: [os.path.join(INPUT, HOLOBIONT_D, REACTIONS_TSV)],
-                  3: [os.path.join(INPUT, AUCOME_D, GROUPS_TSV),
-                      os.path.join(INPUT, AUCOME_D, REACTIONS_TSV)]}
+    files_step = {BLASTP: [get_file_from_ext(os.path.join(INPUT, DATABASE_D), FASTA_EXT),
+                           get_file_from_ext(os.path.join(INPUT, SPECIES_D), FAA_EXT)],
+                  ENRICH: get_enrich_reactions_files()}
 
-    for file in files_step[step_num]:
-        if file is None:
-            logging.info(f'Not all files found to run the {names_list[step_num]} step, passing the step\n')
+    if step == BLASTP:
+        for file in files_step[step]:
+            if file is None:
+                logging.info(f'Not all files found to run the {step} step, passing the step\n')
+                return False
+            elif not os.path.exists(file):
+                logging.info(f'Not all files found to run the {step} step, passing the step\n')
+                return False
+        return True
+
+    elif step == ENRICH:
+        if files_step[step] == dict():
+            logging.info(f'No group directories for {step} step, passing the step\n')
             return False
-        elif not os.path.exists(file):
-            logging.info(f'Not all files found to run the {names_list[step_num]} step, passing the step\n')
-            return False
-    return True
+        elif group is None:
+            all_pres = True
+            for g, path in files_step[step].items():
+                if not os.path.exists(path):
+                    logging.info(f'No reaction file for group {g}, checking PADMET network presence')
+                    if not check_enrich_networks_files(os.path.join(INPUT, ENRICH_D, g), PADMET_EXT):
+                        logging.info(f'No PADMET network(s) for group {g}, checking SBML network presence')
+                        if not check_enrich_networks_files(os.path.join(INPUT, ENRICH_D, g), SBML_EXT):
+                            logging.info(f'No reaction file or PADMET networks or SBML networks for group {g}, '
+                                         f'--enrich={g} impossible')
+                            all_pres = False
+                        else:
+                            logging.info(f'SBML network(s) found for group {g}, --enrich={g} possible')
+                    else:
+                        logging.info(f'PADMET network(s) found for group {g}, --enrich={g} possible')
+                else:
+                    logging.info(f'Reaction file found for group {g}, --enrich={g} possible')
+            return all_pres
+        else:
+            if not os.path.exists(files_step[step][group]):
+                logging.info(f'No reaction file for group {group}, checking PADMET network presence')
+                if not check_enrich_networks_files(os.path.join(INPUT, ENRICH_D, group), PADMET_EXT):
+                    logging.info(f'No PADMET network for group {group}, checking SBML network presence')
+                    if not check_enrich_networks_files(os.path.join(INPUT, ENRICH_D, group), SBML_EXT):
+                        logging.info(f'No reaction file or PADMET networks or SBML networks for group {group}, '
+                                     f'--enrich={group} impossible')
+                        return False
+        return True

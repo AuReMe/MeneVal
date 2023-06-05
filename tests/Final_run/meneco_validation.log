@@ -1,0 +1,271 @@
+Running init step : creating directories :
+=========================================
+
+Input created
+Input/DataBase created
+Input/Enrichment created
+Input/Species_seq created
+Input/Networks created
+Input/Seeds created
+Input/Targets created
+Output created
+Output/BlastP created
+Output/Enrichment created
+Output/Networks created
+Output/Networks/PADMET created
+Output/Networks/SBML created
+Output/Meneco created
+Output/Meneco/Filtered_TSV created
+Output/Meneco/Json_outputs created
+Output/Meneco/TSV created
+
+--------------
+Init step done
+
+Running Check step
+==================
+
+No file with the extension .padmet in path Input/Networks
+No reaction file for group Group3, checking PADMET network presence
+No PADMET network(s) for group Group3, checking SBML network presence
+SBML network(s) found for group Group3, --enrich=Group3 possible
+No reaction file for group Group1, checking PADMET network presence
+No PADMET network(s) for group Group1, checking SBML network presence
+SBML network(s) found for group Group1, --enrich=Group1 possible
+No reaction file for group Group2, checking PADMET network presence
+No PADMET network(s) for group Group2, checking SBML network presence
+SBML network(s) found for group Group2, --enrich=Group2 possible
+All files required found
+
+---------------
+Check step done
+
+Running files generation step :
+===============================
+
+Input/Seeds/seeds_medium.tsv created
+Input/Seeds/seeds_artefacts.tsv created
+Input/Seeds/seeds_artefacts.sbml created
+Input/Targets/temp_targets.tsv created
+Input/Targets/biomass.tsv created
+Input/Targets/targets.sbml created
+Input/DataBase/database.sbml created
+No file with the extension .padmet in path Input/Networks
+Input/Networks/CFT073.sbml created
+Output/Networks/PADMET/0_medium.padmet created
+Output/Networks/PADMET/0_base.padmet created
+Output/Networks/SBML/0_base.sbml created
+Input/Enrichment/Group3/reactions.tsv created
+Input/Enrichment/Group1/reactions.tsv created
+Input/Enrichment/Group2/reactions.tsv created
+
+All files needed created successfully
+
+--------------------------
+Files generation step done
+
+==================================================
+	STEP 1 : MENECO + BLASTP VALIDATION
+==================================================
+
+Running Meneco :
+----------------------------------------
+
+Reading draft network ...
+Reading seeds ...
+Reading targets ...
+Checking draftnet for unproducible targets ...
+Reading repair db ...
+Checking draftnet + repairnet for unproducible targets ...
+Computing essential reactions for M_LYS_c ...
+Computing essential reactions for M_MET_c ...
+Computing essential reactions for M_PRO_c ...
+Adding essential reactions to network!
+Computing one minimal completion to produce all targets ...
+Computing common reactions in all completion with size 9 ...
+Computing union of reactions from all completion with size 9 ...
+Output/Meneco/Json_outputs/1_meneco.json created
+
+Create Meneco tsv output :
+----------------------------------------
+
+Output/Meneco/TSV/1_meneco_out.tsv created
+
+Running BLASTP validation step :
+----------------------------------------
+
+Extracting reactions from Meneco output
+Total of 13 reactions
+
+Output/Meneco/Filtered_TSV/1_meneco_out_filtered.tsv created
+
+Adding reactions found to network :
+----------------------------------------
+
+Output/Networks/PADMET/1_BLASTP.padmet created
+
+Convert Padmet to SBML:
+----------------------------------------
+
+Output/Networks/SBML/1_BLASTP.sbml created
+
+-----------
+Step 1 Done
+
+==================================================
+	STEP 2 : MENECO + ENRICHMENT VALIDATION
+==================================================
+
+Running Meneco :
+----------------------------------------
+
+Reading draft network ...
+Reading seeds ...
+Reading targets ...
+Checking draftnet for unproducible targets ...
+Reading repair db ...
+Checking draftnet + repairnet for unproducible targets ...
+Computing essential reactions for M_MET_c ...
+Computing essential reactions for M_PRO_c ...
+Adding essential reactions to network!
+Computing one minimal completion to produce all targets ...
+Computing common reactions in all completion with size 2 ...
+Computing union of reactions from all completion with size 2 ...
+Output/Meneco/Json_outputs/2_meneco.json created
+
+Create Meneco tsv output :
+----------------------------------------
+
+Output/Meneco/TSV/2_meneco_out.tsv created
+
+Running ENRICHMENT validation step :
+----------------------------------------
+
+Extracting reactions from Meneco output
+Total of 2 reactions
+
+Output/Meneco/Filtered_TSV/2_meneco_out_filtered.tsv created
+
+Adding reactions found to network :
+----------------------------------------
+
+Output/Networks/PADMET/2_Group2_ENRICHMENT.padmet created
+
+Convert Padmet to SBML:
+----------------------------------------
+
+Output/Networks/SBML/2_Group2_ENRICHMENT.sbml created
+
+-----------
+Step 2 Done
+
+==================================================
+	STEP 3 : MENECO + ENRICHMENT VALIDATION
+==================================================
+
+Running Meneco :
+----------------------------------------
+
+Reading draft network ...
+Reading seeds ...
+Reading targets ...
+Checking draftnet for unproducible targets ...
+Reading repair db ...
+Checking draftnet + repairnet for unproducible targets ...
+Computing essential reactions for M_PRO_c ...
+Adding essential reactions to network!
+Computing one minimal completion to produce all targets ...
+Computing common reactions in all completion with size 1 ...
+Computing union of reactions from all completion with size 1 ...
+Output/Meneco/Json_outputs/3_meneco.json created
+
+Create Meneco tsv output :
+----------------------------------------
+
+Output/Meneco/TSV/3_meneco_out.tsv created
+
+Running ENRICHMENT validation step :
+----------------------------------------
+
+Extracting reactions from Meneco output
+Total of 1 reactions
+
+Output/Meneco/Filtered_TSV/3_meneco_out_filtered.tsv created
+
+Adding reactions found to network :
+----------------------------------------
+
+Output/Networks/PADMET/3_Group1_ENRICHMENT.padmet created
+
+Convert Padmet to SBML:
+----------------------------------------
+
+Output/Networks/SBML/3_Group1_ENRICHMENT.sbml created
+
+-----------
+Step 3 Done
+
+==================================================
+	STEP 4 : MENECO + ENRICHMENT VALIDATION
+==================================================
+
+Running Meneco :
+----------------------------------------
+
+Reading draft network ...
+Reading seeds ...
+Reading targets ...
+Checking draftnet for unproducible targets ...
+Reading repair db ...
+Checking draftnet + repairnet for unproducible targets ...
+Computing essential reactions for M_PRO_c ...
+Adding essential reactions to network!
+Computing one minimal completion to produce all targets ...
+Computing common reactions in all completion with size 1 ...
+Computing union of reactions from all completion with size 1 ...
+Output/Meneco/Json_outputs/4_meneco.json created
+
+Create Meneco tsv output :
+----------------------------------------
+
+Output/Meneco/TSV/4_meneco_out.tsv created
+
+Running ENRICHMENT validation step :
+----------------------------------------
+
+Extracting reactions from Meneco output
+Total of 1 reactions
+
+Output/Meneco/Filtered_TSV/4_meneco_out_filtered.tsv created
+
+Adding reactions found to network :
+----------------------------------------
+
+Output/Networks/PADMET/4_Group3_ENRICHMENT.padmet created
+
+Convert Padmet to SBML:
+----------------------------------------
+
+Output/Networks/SBML/4_Group3_ENRICHMENT.sbml created
+
+-----------
+Step 4 Done
+
+==================================================
+	STEP 5 : MENECO + FILL VALIDATION
+==================================================
+
+Running Meneco :
+----------------------------------------
+
+Reading draft network ...
+Reading seeds ...
+Reading targets ...
+Checking draftnet for unproducible targets ...
+Output/Meneco/Json_outputs/5_meneco.json created
+
+--> No targets left to reach. Finishing step.
+
+-----------
+Step 5 Done
+

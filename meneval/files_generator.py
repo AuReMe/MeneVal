@@ -2,6 +2,8 @@ from meneval.environment import *
 import os
 import logging
 from padmet.utils.connection.sbmlGenerator import compound_to_sbml, padmet_to_sbml
+from padmet.utils.connection.sbml_to_padmet import sbml_to_padmetSpec
+from padmet.utils.exploration.compare_padmet import compare_padmet
 
 
 def check_file_creation(file: str):
@@ -137,28 +139,68 @@ def generate_db_sbml():
 
 def generate_base_networks():
     """ In Output/Networks directory, create files :
-            - 1_medium.padmet
-            - 1_base.padmet
-            - 1_base.sbml
+            - 0_base.padmet
+            - 0_base.sbml
         """
-    # Create 1_<SPECIES>_medium.padmet
-    base_padmet = get_file_from_ext(os.path.join(INPUT, NETWORK_D), PADMET_EXT)
+    # Create 0_medium.padmet
+    input_padmet = get_file_from_ext(os.path.join(INPUT, NETWORK_D), PADMET_EXT)
+    if input_padmet is None:
+        input_sbml = get_file_from_ext(os.path.join(INPUT, NETWORK_D), SBML_EXT)
+        input_padmet = input_sbml.split('.')[0] + PADMET_EXT
+        sbml_to_padmetSpec(sbml=input_sbml, padmetSpec_file=input_padmet)
+        check_file_creation(input_sbml)
     if not files_exist(MEDIUM_NW):
-        os.system(f'padmet padmet_medium --padmetSpec={base_padmet} '
+        os.system(f'padmet padmet_medium --padmetSpec={input_padmet} '
                   f'--seeds={SEEDS_TSV}  '
                   f'--padmetRef={get_file_from_ext(os.path.join(INPUT, DATABASE_D), PADMET_EXT)} '
                   f'--output={MEDIUM_NW}')
     check_file_creation(MEDIUM_NW)
 
-    # Create 1_<SPECIES>_biomass.padmet
+    # Create 0_base.padmet
     if not files_exist(BASE_NW[PADMET_D]):
         os.system(f'padmet manual_curation --padmetSpec={MEDIUM_NW} '
                   f'--data={BIOMASS_TSV} '
                   f'--output={BASE_NW[PADMET_D]} '
                   f'--category=MANUAL')
     check_file_creation(BASE_NW[PADMET_D])
+    # Delete 0_medium.padmet
+    os.remove(MEDIUM_NW)
 
-    # Create 1_<SPECIES>_base.sbml
+    # Create 0_base.sbml
     if not files_exist(BASE_NW[SBML_D]):
         padmet_to_sbml(padmet=BASE_NW[PADMET_D], output=BASE_NW[SBML_D])
     check_file_creation(BASE_NW[SBML_D])
+
+
+def generate_reactions_files():
+    rxn_files = get_enrich_reactions_files()
+    for group, r_path in rxn_files.items():
+        if not files_exist(r_path):
+            group_path = os.path.join(INPUT, ENRICH_D, group)
+
+            if check_enrich_networks_files(group_path, PADMET_EXT):
+                padmet_dir = os.path.join(group_path, PADMET_D)
+                compare_padmet(padmet_path=padmet_dir, output=group_path)
+                os.remove(os.path.join(group_path, 'metabolites.tsv'))
+                os.remove(os.path.join(group_path, 'genes.tsv'))
+                os.remove(os.path.join(group_path, 'pathways.tsv'))
+                check_file_creation(r_path)
+
+            elif check_enrich_networks_files(os.path.join(INPUT, ENRICH_D, group), SBML_EXT):
+                sbml_dir = os.path.join(group_path, SBML_D)
+                padmet_dir = os.path.join(group_path, PADMET_D)
+                if not os.path.exists(padmet_dir):
+                    os.mkdir(padmet_dir)
+                for sbml_file in os.listdir(sbml_dir):
+                    output_padmet = os.path.join(padmet_dir, str(sbml_file).split('.')[0] + PADMET_EXT)
+                    input_sbml = os.path.join(sbml_dir, sbml_file)
+                    sbml_to_padmetSpec(sbml=input_sbml, padmetSpec_file=output_padmet)
+                check_enrich_networks_files(os.path.join(INPUT, ENRICH_D, group), PADMET_EXT)
+
+                compare_padmet(padmet_path=padmet_dir, output=group_path)
+                os.remove(os.path.join(group_path, 'metabolites.tsv'))
+                os.remove(os.path.join(group_path, 'genes.tsv'))
+                os.remove(os.path.join(group_path, 'pathways.tsv'))
+                check_file_creation(r_path)
+        else:
+            check_file_creation(r_path)

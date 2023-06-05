@@ -1,18 +1,18 @@
 """
 INPUT FILES TO ADD :
     |- Input
-        |- AuCoMe
-            |- reactions.tsv : File reactions.tsv obtained from analysis step in AuCoMe run
-            |- group_template.tsv (opt) : File of group template for group species selection
         |- DataBase
             |- <DataBase>.padmet : DataBase with ".padmet" extension created from PGDB. Must have been created with
                 "--prot-ids70" option in pgdb_to_padmet --> will assign UNIPROT and PID ids to reactions in their xrefs
                 (with "_70" suffix)
             |- <prot_seq>.fasta : protein-seq-ids-reduced-70.fasta file created while generating MetaCyc padmet file
                 with "--prot-ids70" option
-        |- Holobiont
-            |- reactions.tsv : File reactions.tsv obtained with compare padmet from holobiont networks
-            |- group_template.tsv (opt) : File of group template for group species selection
+        |- Enrichment
+            |- <Group1>
+                |- reactions.tsv : File reactions.tsv obtained with compare padmet from <Group1> networks
+            |- <Group2>
+                |- reactions.tsv : File reactions.tsv obtained with compare padmet from <Group2> networks
+            |- ...
         |- Networks
             |- <sp>.padmet : Networks in ".padmet" for gap filling
         |- Seeds
@@ -55,48 +55,36 @@ def blastp_step(meneco_tsv, meneco_filtered):
 
 
 # 2ND VALIDATION
-def holobiont_step(meneco_tsv, meneco_filtered):
-    name = 'Holobiont'
-    output = os.path.join(OUTPUT, HOLOBIONT_D)
-    reactions_tsv = os.path.join(INPUT, HOLOBIONT_D, REACTIONS_TSV)
+def enrichment_step(meneco_tsv, meneco_filtered, group):
+    output = os.path.join(OUTPUT, ENRICH_D, group)
+    os.mkdir(output)
+    reactions_tsv = os.path.join(INPUT, ENRICH_D, group, REACTIONS_TSV)
     # Run functions
     rxn_list = extract_rxn_from_meneco(meneco_tsv)
-    kept_rxn_set = validation_networks(name, output, rxn_list, reactions_tsv)
-    create_new_meneco_tsv(meneco_tsv, kept_rxn_set, meneco_filtered, f'Potential {name} source')
-
-
-# 3RD VALIDATION
-def aucome_step(meneco_tsv, meneco_filtered, group):
-    name = group
-    output = os.path.join(OUTPUT, AUCOME_D)
-    reactions_tsv = os.path.join(INPUT, AUCOME_D, REACTIONS_TSV)
-    group_template = os.path.join(INPUT, AUCOME_D, GROUPS_TSV)
-    # Run function
-    rxn_list = extract_rxn_from_meneco(meneco_tsv)
-    kept_rxn_set = validation_networks(name, output, rxn_list, reactions_tsv, group_template, group)
-    create_new_meneco_tsv(meneco_tsv, kept_rxn_set, meneco_filtered, f'Potential {name} source')
+    kept_rxn_set = validation_networks(group, output, rxn_list, reactions_tsv)
+    create_new_meneco_tsv(meneco_tsv, kept_rxn_set, meneco_filtered, f'Potential {group} source')
 
 
 def final_step(meneco_tsv, meneco_filtered):
     shutil.copy(meneco_tsv, meneco_filtered)
 
 
-def run_step(num, group=None):
+def get_prev_networks(num):
+    for file in os.listdir(os.path.join(OUTPUT, NETWORK_D, PADMET_D)):
+        file = str(file)
+        file_comp = get_file_comp(file)
+        if file_comp[0] == num-1:
+            prev_network_padmet = os.path.join(OUTPUT, NETWORK_D, PADMET_D, file)
+            prev_network_sbml = os.path.join(OUTPUT, NETWORK_D, SBML_D, file.split('.')[0] + SBML_EXT)
+            return prev_network_padmet, prev_network_sbml
+    logging.info(f'No previous networks found for step number {num}')
+
+
+def run_step(name, group=None):
     # Get appropriated file
-    names_list = ['BLASTP', 'HOLOBIONT', 'AUCOME', 'FILL']
-    name = names_list[num - 1]
-    networks_rank = [BASE_NW, BLASTP_GF_NW, HOLOBIONT_GF_NW, AUCOME_GF_NW, FINAL_GF_NW]
-
-    dict_nw = networks_rank[num]
-    prev = num - 1
-    while (not os.path.exists(networks_rank[prev][SBML_D] or
-           not os.path.exists(networks_rank[prev][PADMET_D]))):
-        prev -= 1
-        if prev == -1:
-            raise FileNotFoundError(f'No padmet and sbml files found for running step {name}')
-
-    prev_network_sbml = networks_rank[prev][SBML_D]
-    prev_network_padmet = networks_rank[prev][PADMET_D]
+    dict_nw = get_nw_path(name, group)
+    num = get_num(name, group)
+    prev_network_padmet, prev_network_sbml = get_prev_networks(num)
 
     # Begin step
     logging.info(f'{50 * "="}\n\tSTEP {num} : MENECO + {name} VALIDATION\n{50 * "="}\n')
@@ -123,14 +111,12 @@ def run_step(num, group=None):
         # Validation step
         logging.info(f'\nRunning {name} validation step :\n{40 * "-"}\n')
         if not os.path.exists(meneco_filtered):
-            if name == names_list[0]:
+            if name == BLASTP:
                 blastp_step(meneco_tsv, meneco_filtered)
                 add_genes_tsv(meneco_filtered)
-            if name == names_list[1]:
-                holobiont_step(meneco_tsv, meneco_filtered)
-            if name == names_list[2]:
-                aucome_step(meneco_tsv, meneco_filtered, group)
-            if name == names_list[3]:
+            if name == ENRICH:
+                enrichment_step(meneco_tsv, meneco_filtered, group)
+            if name == FILL:
                 final_step(meneco_tsv, meneco_filtered)
             logging.basicConfig(filename=LOG_FILE, level=logging.INFO, format='%(message)s', force=True)
         else:
@@ -166,5 +152,6 @@ def generate_files():
     generate_targets()
     generate_db_sbml()
     generate_base_networks()
+    generate_reactions_files()
     logging.info('\nAll files needed created successfully')
     logging.info('\n--------------------------\nFiles generation step done\n')

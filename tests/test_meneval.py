@@ -20,9 +20,8 @@ class Test(unittest.TestCase):
     def move_files():
         shutil.rmtree('Input')
         source_dest_dir = {'Final_run/Input/': 'Input/'}
-        source_dest_file = {'Final_run/Output/Networks/PADMET/1_base.padmet': 'Output/Networks/PADMET/1_base.padmet',
-                            'Final_run/Output/Networks/PADMET/1_medium.padmet': 'Output/Networks/PADMET/1_medium.padmet',
-                            'Final_run/Output/Networks/SBML/1_base.sbml': 'Output/Networks/SBML/1_base.sbml'
+        source_dest_file = {'Final_run/Output/Networks/PADMET/0_base.padmet': 'Output/Networks/PADMET/0_base.padmet',
+                            'Final_run/Output/Networks/SBML/0_base.sbml': 'Output/Networks/SBML/0_base.sbml'
                             }
         for source, destination in source_dest_dir.items():
             shutil.copytree(source, destination)
@@ -51,43 +50,51 @@ class Test(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, TSV_D, '1_meneco_out.tsv')))
         self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, FILTERED_D, '1_meneco_out_filtered.tsv')))
 
-        self.assertTrue(os.path.exists(BLASTP_GF_NW[PADMET_D]))
-        self.assertTrue(os.path.exists(BLASTP_GF_NW[SBML_D]))
+        blastp_nw = get_nw_path(BLASTP)
+        self.assertTrue(os.path.exists(blastp_nw[PADMET_D]))
+        self.assertTrue(os.path.exists(blastp_nw[SBML_D]))
 
         with open('meneco_validation.log', 'r') as logfile:
-            self.assertEqual(len(logfile.readlines()), 84)
+            self.assertEqual(len(logfile.readlines()), 83)
 
-    def test_aucome(self):
-        os.system('meneval --aucome --group=group1')
+    def test_enrich(self):
+        groups = ['Group2', 'Group1', 'Group3']
+        nb_lines = [83, 131, 179]
 
-        self.assertTrue(os.path.exists(os.path.join(OUTPUT, AUCOME_D, 'networks_validation.log')))
-        self.assertTrue(os.path.exists(os.path.join(OUTPUT, AUCOME_D, 'res_validation_networks.tsv')))
+        for num in range(1, 4):
+            group = groups[num-1]
+            os.system(f'meneval --enrich {group}')
 
-        self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, FILTERED_D, '3_meneco_out_filtered.tsv')))
-        self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, TOOL_OUTPUTS_D, '3_meneco.json')))
-        self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, TSV_D, '3_meneco_out.tsv')))
+            self.assertTrue(os.path.exists(os.path.join(OUTPUT, ENRICH_D, group, 'networks_validation.log')))
+            self.assertTrue(os.path.exists(os.path.join(OUTPUT, ENRICH_D, group, 'res_validation_networks.tsv')))
 
-        self.assertTrue(os.path.exists(AUCOME_GF_NW[PADMET_D]))
-        self.assertTrue(os.path.exists(AUCOME_GF_NW[SBML_D]))
+            self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, FILTERED_D, f'{num}_meneco_out_filtered.tsv')))
+            self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, TOOL_OUTPUTS_D, f'{num}_meneco.json')))
+            self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, TSV_D, f'{num}_meneco_out.tsv')))
 
-        with open('meneco_validation.log', 'r') as logfile:
-            self.assertEqual(len(logfile.readlines()), 84)
+            g_nw = get_nw_path(ENRICH, group)
+            self.assertTrue(os.path.exists(g_nw[PADMET_D]))
+            self.assertTrue(os.path.exists(g_nw[SBML_D]))
+
+            with open('meneco_validation.log', 'r') as logfile:
+                self.assertEqual(len(logfile.readlines()), nb_lines[num-1])
 
     def test_fill(self):
         os.system('meneval --fill')
 
-        self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, FILTERED_D, '4_meneco_out_filtered.tsv')))
-        self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, TOOL_OUTPUTS_D, '4_meneco.json')))
-        self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, TSV_D, '4_meneco_out.tsv')))
+        self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, FILTERED_D, '1_meneco_out_filtered.tsv')))
+        self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, TOOL_OUTPUTS_D, '1_meneco.json')))
+        self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, TSV_D, '1_meneco_out.tsv')))
 
         self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, 'stat_list.tsv')))
         self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, 'stat_nb.tsv')))
 
-        self.assertTrue(os.path.exists(FINAL_GF_NW[PADMET_D]))
-        self.assertTrue(os.path.exists(FINAL_GF_NW[SBML_D]))
+        fill_nw = get_nw_path(FILL)
+        self.assertTrue(os.path.exists(fill_nw[PADMET_D]))
+        self.assertTrue(os.path.exists(fill_nw[SBML_D]))
 
         with open('meneco_validation.log', 'r') as logfile:
-            self.assertEqual(len(logfile.readlines()), 81)
+            self.assertEqual(len(logfile.readlines()), 80)
 
     def test_workflow(self):
         os.system('meneval --workflow')
@@ -113,25 +120,33 @@ class Test(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, TSV_D, '1_meneco_out.tsv')))
         self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, FILTERED_D, '1_meneco_out_filtered.tsv')))
 
-        self.assertTrue(os.path.exists(BLASTP_GF_NW[PADMET_D]))
-        self.assertTrue(os.path.exists(BLASTP_GF_NW[SBML_D]))
+        blastp_nw = get_nw_path(BLASTP)
+        self.assertTrue(os.path.exists(blastp_nw[PADMET_D]))
+        self.assertTrue(os.path.exists(blastp_nw[SBML_D]))
 
-        # AUCOME
-        self.assertTrue(os.path.exists(os.path.join(OUTPUT, AUCOME_D, 'networks_validation.log')))
-        self.assertTrue(os.path.exists(os.path.join(OUTPUT, AUCOME_D, 'res_validation_networks.tsv')))
+        # ENRICH
+        groups = ['Group1', 'Group2', 'Group3']
 
-        self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, FILTERED_D, '3_meneco_out_filtered.tsv')))
-        self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, TOOL_OUTPUTS_D, '3_meneco.json')))
-        self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, TSV_D, '3_meneco_out.tsv')))
+        for num in range(2, 5):
+            group = groups[num - 2]
 
-        self.assertTrue(os.path.exists(AUCOME_GF_NW[PADMET_D]))
-        self.assertTrue(os.path.exists(AUCOME_GF_NW[SBML_D]))
+            self.assertTrue(os.path.exists(os.path.join(OUTPUT, ENRICH_D, group, 'networks_validation.log')))
+            self.assertTrue(os.path.exists(os.path.join(OUTPUT, ENRICH_D, group, 'res_validation_networks.tsv')))
+
+            self.assertTrue(
+                os.path.exists(os.path.join(OUTPUT, MENECO_D, FILTERED_D, f'{num}_meneco_out_filtered.tsv')))
+            self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, TOOL_OUTPUTS_D, f'{num}_meneco.json')))
+            self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, TSV_D, f'{num}_meneco_out.tsv')))
+
+            g_nw = get_nw_path(ENRICH, group)
+            self.assertTrue(os.path.exists(g_nw[PADMET_D]))
+            self.assertTrue(os.path.exists(g_nw[SBML_D]))
 
         # FILL
-        self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, TOOL_OUTPUTS_D, '4_meneco.json')))
+        self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, TOOL_OUTPUTS_D, '5_meneco.json')))
 
         self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, 'stat_list.tsv')))
         self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, 'stat_nb.tsv')))
 
         with open('meneco_validation.log', 'r') as logfile:
-            self.assertEqual(len(logfile.readlines()), 188)
+            self.assertEqual(len(logfile.readlines()), 284)

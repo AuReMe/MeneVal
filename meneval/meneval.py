@@ -152,5 +152,6 @@ def generate_files():
     generate_targets()
     generate_db_sbml()
     generate_base_networks()
+    generate_reactions_files()
     logging.info('\nAll files needed created successfully')
     logging.info('\n--------------------------\nFiles generation step done\n')

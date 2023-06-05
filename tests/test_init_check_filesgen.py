@@ -15,17 +15,15 @@ class Test(unittest.TestCase):
 
     def test_init(self):
         paths = ['Input',
-                 'Input/AuCoMe',
                  'Input/DataBase',
-                 'Input/Holobiont',
+                 'Input/Enrichment',
                  'Input/Species_seq',
                  'Input/Networks',
                  'Input/Seeds',
                  'Input/Targets',
                  'Output',
-                 'Output/AuCoMe',
                  'Output/BlastP',
-                 'Output/Holobiont',
+                 'Output/Enrichment',
                  'Output/Networks',
                  'Output/Networks/PADMET',
                  'Output/Networks/SBML',
@@ -38,8 +36,9 @@ class Test(unittest.TestCase):
 
     @staticmethod
     def move_files():
-        source_dest = {'Final_run/Input/AuCoMe/group_template.tsv': 'Input/AuCoMe/group_template.tsv',
-                       'Final_run/Input/AuCoMe/reactions.tsv': 'Input/AuCoMe/reactions.tsv',
+        source_dest = {'Final_run/Input/Enrichment/Group1/reactions.tsv': 'Input/Enrichment/Group1/reactions.tsv',
+                       'Final_run/Input/Enrichment/Group2/reactions.tsv': 'Input/Enrichment/Group2/reactions.tsv',
+                       'Final_run/Input/Enrichment/Group3/reactions.tsv': 'Input/Enrichment/Group3/reactions.tsv',
                        'Final_run/Input/DataBase/metacyc_26.0_prot70.padmet':
                            'Input/DataBase/metacyc_26.0_prot70.padmet',
                        'Final_run/Input/DataBase/proteins_seq_ids_reduced_70.fasta':
@@ -51,6 +50,9 @@ class Test(unittest.TestCase):
                        'Final_run/Input/Species_seq/CFT073.fna': 'Input/Species_seq/CFT073.fna',
                        'Final_run/Input/Targets/targets.tsv': 'Input/Targets/targets.tsv'
                        }
+        dir_groups = ['Input/Enrichment/Group1', 'Input/Enrichment/Group2', 'Input/Enrichment/Group3']
+        for dir_g in dir_groups:
+            os.mkdir(dir_g)
         for source, destination in source_dest.items():
             shutil.copy(source, destination)
 
@@ -67,9 +69,8 @@ class Test(unittest.TestCase):
                               'Input/Targets/biomass.tsv',
                               'Input/Targets/targets.sbml',
                               'Input/DataBase/database.sbml',
-                              'Output/Networks/PADMET/1_medium.padmet',
-                              'Output/Networks/PADMET/1_base.padmet',
-                              'Output/Networks/SBML/1_base.sbml']
+                              'Output/Networks/PADMET/0_base.padmet',
+                              'Output/Networks/SBML/0_base.sbml']
 
         os.system('meneval --check')
         os.system('meneval --files')

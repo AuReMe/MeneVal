@@ -19,11 +19,16 @@ def main():
     init, check, files_generation, blastp, enrich, fill, workflow = get_command_line_args()
 
     if workflow:
-        init = False
-        check = True
-        files_generation = True
-        blastp = True
-        fill = True
+        check_required_files()
+        generate_files()
+        if check_step_required_files(BLASTP):
+            run_step(BLASTP)
+        groups = get_enrich_groups()
+        for group in groups:
+            if check_step_required_files(ENRICH, group):
+                run_step(ENRICH, group)
+        run_step(FILL)
+        make_meneco_stats()
 
     # INITIALIZATION AND CHECK =========================================================================================
     if init:

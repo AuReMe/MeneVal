@@ -148,7 +148,7 @@ def get_num(step: str, group: str = None) -> int:
         file_comp = get_file_comp(file)
         if step == ENRICH and file_comp[1] == group:
             return file_comp[0]
-        elif step != ENRICH and file_comp[0] == num - 1 and file_comp[-2] == step:
+        elif step != ENRICH and file_comp[-2] == step:
             return file_comp[0]
     return num
 

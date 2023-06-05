@@ -135,7 +135,7 @@ class Test(unittest.TestCase):
               'DAYRELYFGEARLPSLFELAREAGYPGVIYLGSFSKVLSPGLRVAFAVAHPEALQKLVQAKQGADLHTPMLNQMLVHELLKEGFSERLERVRRVYREKAQA' \
               'MLHALDREVPKEVRYTRPKGGMFVWMELPKGLSAEGLFRRALEENVAFVPGGPFFANGGGENTLRLSYATLDREGIAEGVRRLGRALKGLLALV'
 
-        res = run_blastp(seq, uni_id, rxn, SPECIES_PROTEOME, seq_dir, blast_res_file)
+        res = run_blastp(seq, uni_id, rxn, SPECIES_PROTEOME, seq_dir, blast_res_file, 1e-10)
         self.assertTrue(res)
         self.assertTrue(os.path.exists(os.path.join(seq_dir, 'Q72LL6.fasta')))
 
@@ -158,7 +158,7 @@ class Test(unittest.TestCase):
               'DAYRELYFGEARLPSLFELAREAGYPGVIYLGSFSKVLSPGLRVAFAVAHPEALQKLVQAKQGADLHTPMLNQMLVHELLKEGFSERLERVRRVYREKAQA' \
               'MLHALDREVPKEVRYTRPKGGMFVWMELPKGLSAEGLFRRALEENVAFVPGGPFFANGGGENTLRLSYATLDREGIAEGVRRLGRALKGLLALV'
 
-        res = run_tblastn(seq, uni_id, rxn, SPECIES_GENOME, seq_dir, blast_res_file)
+        res = run_tblastn(seq, uni_id, rxn, SPECIES_GENOME, seq_dir, blast_res_file, 1e-10)
         self.assertTrue(res)
         self.assertTrue(os.path.exists(os.path.join(seq_dir, 'Q72LL6.fasta')))
 

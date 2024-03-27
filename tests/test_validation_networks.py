@@ -2,7 +2,7 @@ import os.path
 import unittest
 import shutil
 
-import aucomana.utils.reactions
+from aucomana.utils.reactions import Reactions
 
 from meneval.validation_networks import *
 

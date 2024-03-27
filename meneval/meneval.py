@@ -58,11 +58,25 @@ def blastp_step(meneco_tsv, meneco_filtered):
 def enrichment_step(meneco_tsv, meneco_filtered, group):
     output = os.path.join(OUTPUT, ENRICH_D, group)
     os.mkdir(output)
-    reactions_tsv = os.path.join(INPUT, ENRICH_D, group, REACTIONS_TSV)
-    # Run functions
-    rxn_list = extract_rxn_from_meneco(meneco_tsv)
-    kept_rxn_set = validation_networks(group, output, rxn_list, reactions_tsv)
-    create_new_meneco_tsv(meneco_tsv, kept_rxn_set, meneco_filtered, f'Potential {group} source')
+    if group == GROUP_ALL:
+        groups = get_enrich_groups()
+        groups_kept_rxn = dict()
+        for group in groups:
+            reactions_tsv = os.path.join(INPUT, ENRICH_D, group, REACTIONS_TSV)
+            rxn_list = extract_rxn_from_meneco(meneco_tsv)
+            kept_rxn_set = validation_networks(group, output, rxn_list, reactions_tsv)
+            for rxn in kept_rxn_set:
+                if rxn not in groups_kept_rxn:
+                    groups_kept_rxn[rxn] = set()
+                groups_kept_rxn[rxn].add(group)
+        message = {rxn: f'Potential {" and ".join(groups_kept_rxn[rxn])} source' for rxn in groups_kept_rxn}
+        create_new_meneco_tsv(meneco_tsv, set(groups_kept_rxn.keys()), meneco_filtered, message)
+    else:
+        reactions_tsv = os.path.join(INPUT, ENRICH_D, group, REACTIONS_TSV)
+        # Run functions
+        rxn_list = extract_rxn_from_meneco(meneco_tsv)
+        kept_rxn_set = validation_networks(group, output, rxn_list, reactions_tsv)
+        create_new_meneco_tsv(meneco_tsv, kept_rxn_set, meneco_filtered, f'Potential {group} source')
 
 
 def final_step(meneco_tsv, meneco_filtered):
@@ -80,7 +94,7 @@ def get_prev_networks(num):
     logging.info(f'No previous networks found for step number {num}')
 
 
-def run_step(name, group=None):
+def run_step(name, group=None, exclude_enrich=False):
     # Get appropriated file
     dict_nw = get_nw_path(name, group)
     num = get_num(name, group)
@@ -126,7 +140,11 @@ def run_step(name, group=None):
         # Add reactions to network
         logging.info(f'\nAdding reactions found to network :\n{40 * "-"}\n')
         if not os.path.exists(dict_nw[PADMET_D]):
-            add_rxn_to_nw(prev_network_padmet, dict_nw[PADMET_D], meneco_filtered)
+            if not exclude_enrich:
+                add_rxn_to_nw(prev_network_padmet, dict_nw[PADMET_D], meneco_filtered)
+            else:
+                exclude_rxn = get_enrich_rxn()
+                add_rxn_to_nw(prev_network_padmet, dict_nw[PADMET_D], meneco_filtered, exclude_rxn)
         else:
             logging.info(f'{dict_nw[PADMET_D]} file found, passing adding reactions to network.')
         check_file_creation(dict_nw[PADMET_D])

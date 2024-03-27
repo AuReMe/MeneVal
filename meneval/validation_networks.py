@@ -26,7 +26,7 @@ def init_res_file(name_species: str, output: str) -> str:
     str
         Path to the results file
     """
-    res_file = os.path.join(output, 'res_validation_networks.tsv')
+    res_file = os.path.join(output, f'{name_species}_res_validation_networks.tsv')
     res_header = ['RXN', f'Nb {name_species} presence', f'{name_species} presence %', f'{name_species} list']
     with open(res_file, 'w') as F:
         F.write('\t'.join(res_header))

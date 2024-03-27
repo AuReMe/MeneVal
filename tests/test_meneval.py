@@ -66,7 +66,7 @@ class Test(unittest.TestCase):
             os.system(f'meneval --enrich {group}')
 
             self.assertTrue(os.path.exists(os.path.join(OUTPUT, ENRICH_D, group, 'networks_validation.log')))
-            self.assertTrue(os.path.exists(os.path.join(OUTPUT, ENRICH_D, group, 'res_validation_networks.tsv')))
+            self.assertTrue(os.path.exists(os.path.join(OUTPUT, ENRICH_D, group, f'{group}_res_validation_networks.tsv')))
 
             self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, FILTERED_D, f'{num}_meneco_out_filtered.tsv')))
             self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, TOOL_OUTPUTS_D, f'{num}_meneco.json')))
@@ -78,6 +78,33 @@ class Test(unittest.TestCase):
 
             with open('meneco_validation.log', 'r') as logfile:
                 self.assertEqual(len(logfile.readlines()), nb_lines[num-1])
+
+
+    def test_enrich_all(self):
+        groups = ['Group2', 'Group1', 'Group3']
+        group = 'ALL'
+        os.system(f'meneval --enrich {group}')
+
+        self.assertTrue(os.path.exists(os.path.join(OUTPUT, ENRICH_D, group, 'networks_validation.log')))
+        for g in groups:
+            self.assertTrue(os.path.exists(os.path.join(OUTPUT, ENRICH_D, group, f'{g}_res_validation_networks.tsv')))
+
+        self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, FILTERED_D, f'{1}_meneco_out_filtered.tsv')))
+        self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, TOOL_OUTPUTS_D, f'{1}_meneco.json')))
+        self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, TSV_D, f'{1}_meneco_out.tsv')))
+
+        g_nw = get_nw_path(ENRICH, group)
+        self.assertTrue(os.path.exists(g_nw[PADMET_D]))
+        self.assertTrue(os.path.exists(g_nw[SBML_D]))
+
+        with open('meneco_validation.log', 'r') as logfile:
+            self.assertEqual(len(logfile.readlines()), 83)
+
+
+    def test_enrich_exclude(self):
+        group = 'ALL'
+        os.system(f'meneval --enrich {group} --exclude_enrich')
+
 
     def test_fill(self):
         os.system('meneval --fill')

@@ -31,7 +31,7 @@ def extract_rxn_from_meneco(meneco_tsv: str) -> List[str]:
     return rxn_list
 
 
-def create_new_meneco_tsv(meneco_tsv: str, kept_rxn: Set[str], output_meneco_tsv: str, message: str):
+def create_new_meneco_tsv(meneco_tsv: str, kept_rxn: Set[str], output_meneco_tsv: str, message: str or Dict[str, str]):
     """Create a new Meneco tsv output keeping only the reactions that led to a blast match.
 
     Parameters
@@ -42,7 +42,7 @@ def create_new_meneco_tsv(meneco_tsv: str, kept_rxn: Set[str], output_meneco_tsv
         set of reactions to keep in the Meneco output.
     output_meneco_tsv: str
         Path to the new meneco tsv output
-    message: str
+    message: str or Dict[str, str]
         Comment for adding the reaction
     """
     logging.info('\nCreation of filtered Meneco tsv output file')
@@ -52,7 +52,10 @@ def create_new_meneco_tsv(meneco_tsv: str, kept_rxn: Set[str], output_meneco_tsv
                 out_meneco.write(line)
             elif line.split('\t')[0] in kept_rxn:
                 line = line.split('\t')
-                line[-2] = message
+                if type(message) == str:
+                    line[-2] = message
+                else:
+                    line[-2] = message[line[0]]
                 out_meneco.write('\t'.join(line))
     logging.info(f'Meneco tsv output file saved in : {output_meneco_tsv}')
 
@@ -117,7 +120,7 @@ def meneco_json_to_tsv(output_json: str, output_tsv: str):
               f'-v')
 
 
-def add_rxn_to_nw(prev_nw: str, gap_filled_nw: str, rxn_to_add: str):
+def add_rxn_to_nw(prev_nw: str, gap_filled_nw: str, rxn_to_add: str, rxn_to_exclude: Set[str] = None):
     """ Add reactions from Meneco in TSV format to a padmet network thanks to padmet manual_curation function.
 
     Parameters
@@ -128,8 +131,17 @@ def add_rxn_to_nw(prev_nw: str, gap_filled_nw: str, rxn_to_add: str):
         Output Network after adding reactions
     rxn_to_add: str
         TSV file with reaction to add to the network
+    rxn_to_exclude: Set[str]
+        Set of reactions to exclude (not added to network)
     """
     db = get_file_from_ext(os.path.join(INPUT, DATABASE_D), PADMET_EXT)
+    if rxn_to_exclude is not None:
+        with open(rxn_to_add, 'r') as f:
+            lines = f.readlines()
+        with open(rxn_to_add, 'w') as f:
+            for line in lines:
+                if line.split('\t')[0] not in rxn_to_exclude:
+                    f.write(line)
     os.system(f'padmet manual_curation '
               f'--padmetSpec={prev_nw} '
               f'--data={rxn_to_add} '

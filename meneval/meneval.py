@@ -58,7 +58,7 @@ def blastp_step(meneco_tsv, meneco_filtered):
 def enrichment_step(meneco_tsv, meneco_filtered, group):
     output = os.path.join(OUTPUT, ENRICH_D, group)
     os.mkdir(output)
-    if group == 'ALL':
+    if group == GROUP_ALL:
         groups = get_enrich_groups()
         groups_kept_rxn = dict()
         for group in groups:

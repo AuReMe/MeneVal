@@ -48,7 +48,7 @@ SBML_EXT = '.sbml'
 BLASTP = 'BLASTP'
 ENRICH = 'ENRICHMENT'
 FILL = 'FILL'
-
+GROUP_ALL = 'ALL'
 
 # UTILITY FUNCTIONS ====================================================================================================
 def get_file_from_ext(path: str, ext: str):
@@ -380,7 +380,7 @@ def check_step_required_files(step: str, group=None) -> bool:
                     logging.info(f'Reaction file found for group {g}, --enrich={g} possible')
             return all_pres
         else:
-            if group != 'ALL':
+            if group != GROUP_ALL:
                 if not os.path.exists(files_step[step][group]):
                     logging.info(f'No reaction file for group {group}, checking PADMET network presence')
                     if not check_enrich_networks_files(os.path.join(INPUT, ENRICH_D, group), PADMET_EXT):

@@ -11,10 +11,10 @@ class Test(unittest.TestCase):
         self.move_files()
         os.system('meneval --check')
 
-    # def tearDown(self):
-    #     shutil.rmtree('Input')
-    #     shutil.rmtree('Output')
-    #     os.remove('meneco_validation.log')
+    def tearDown(self):
+        shutil.rmtree('Input')
+        shutil.rmtree('Output')
+        os.remove('meneco_validation.log')
 
     @staticmethod
     def move_files():
@@ -102,24 +102,8 @@ class Test(unittest.TestCase):
 
 
     def test_enrich_exclude(self):
-        groups = ['Group2', 'Group1', 'Group3']
         group = 'ALL'
         os.system(f'meneval --enrich {group} --exclude_enrich')
-
-        # self.assertTrue(os.path.exists(os.path.join(OUTPUT, ENRICH_D, group, 'networks_validation.log')))
-        # for g in groups:
-        #     self.assertTrue(os.path.exists(os.path.join(OUTPUT, ENRICH_D, group, f'{g}_res_validation_networks.tsv')))
-        #
-        # self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, FILTERED_D, f'{1}_meneco_out_filtered.tsv')))
-        # self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, TOOL_OUTPUTS_D, f'{1}_meneco.json')))
-        # self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, TSV_D, f'{1}_meneco_out.tsv')))
-        #
-        # g_nw = get_nw_path(ENRICH, group)
-        # self.assertTrue(os.path.exists(g_nw[PADMET_D]))
-        # self.assertTrue(os.path.exists(g_nw[SBML_D]))
-        #
-        # with open('meneco_validation.log', 'r') as logfile:
-        #     self.assertEqual(len(logfile.readlines()), 83)
 
 
     def test_fill(self):

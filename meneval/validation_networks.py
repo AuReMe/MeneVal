@@ -3,7 +3,6 @@ import logging
 
 from typing import List, Tuple, Set
 
-import aucomana.utils.reactions
 from aucomana.utils.reactions import Reactions
 from aucomana.utils.utils import get_grp_set
 
@@ -48,8 +47,7 @@ def init_logger(output: str):
 
 # FUNCTIONS ============================================================================================================
 
-def create_rxn_instance(reactions_file: str, group_file: str or None, group: str or None) -> \
-        aucomana.utils.reactions.Reactions:
+def create_rxn_instance(reactions_file: str, group_file: str or None, group: str or None) -> Reactions:
     """ Create an aucomana Reactions instance from reactions.tsv file created from comparison of padmet networks.
     Selects a specified group of species if group_file and group parameters filled.
 

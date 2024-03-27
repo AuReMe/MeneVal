@@ -2,7 +2,7 @@ import os.path
 import unittest
 import shutil
 
-import aucomana.utils.reactions
+from aucomana.utils.reactions import Reactions
 
 from meneval.validation_networks import *
 
@@ -37,7 +37,7 @@ class Test(unittest.TestCase):
     def test_create_rxn_instance(self):
         rxn_group1 = create_rxn_instance(G1_REACTIONS_FILE, None, None)
 
-        self.assertIsInstance(rxn_group1, aucomana.utils.reactions.Reactions)
+        self.assertIsInstance(rxn_group1, Reactions)
         self.assertEqual(set(rxn_group1.species_list), {'ec042', 'HS'})
         self.assertEqual(rxn_group1.nb_reactions, 2361)
 

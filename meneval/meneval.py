@@ -58,11 +58,25 @@ def blastp_step(meneco_tsv, meneco_filtered):
 def enrichment_step(meneco_tsv, meneco_filtered, group):
     output = os.path.join(OUTPUT, ENRICH_D, group)
     os.mkdir(output)
-    reactions_tsv = os.path.join(INPUT, ENRICH_D, group, REACTIONS_TSV)
-    # Run functions
-    rxn_list = extract_rxn_from_meneco(meneco_tsv)
-    kept_rxn_set = validation_networks(group, output, rxn_list, reactions_tsv)
-    create_new_meneco_tsv(meneco_tsv, kept_rxn_set, meneco_filtered, f'Potential {group} source')
+    if group == 'ALL':
+        groups = get_enrich_groups()
+        groups_kept_rxn = dict()
+        for group in groups:
+            reactions_tsv = os.path.join(INPUT, ENRICH_D, group, REACTIONS_TSV)
+            rxn_list = extract_rxn_from_meneco(meneco_tsv)
+            kept_rxn_set = validation_networks(group, output, rxn_list, reactions_tsv)
+            for rxn in kept_rxn_set:
+                if rxn not in groups_kept_rxn:
+                    groups_kept_rxn[rxn] = set()
+                groups_kept_rxn[rxn].add(group)
+        message = {rxn: f'Potential {" and ".join(groups_kept_rxn[rxn])} source' for rxn in groups_kept_rxn}
+        create_new_meneco_tsv(meneco_tsv, set(groups_kept_rxn.keys()), meneco_filtered, message)
+    else:
+        reactions_tsv = os.path.join(INPUT, ENRICH_D, group, REACTIONS_TSV)
+        # Run functions
+        rxn_list = extract_rxn_from_meneco(meneco_tsv)
+        kept_rxn_set = validation_networks(group, output, rxn_list, reactions_tsv)
+        create_new_meneco_tsv(meneco_tsv, kept_rxn_set, meneco_filtered, f'Potential {group} source')
 
 
 def final_step(meneco_tsv, meneco_filtered):

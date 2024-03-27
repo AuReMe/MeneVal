@@ -31,7 +31,7 @@ def extract_rxn_from_meneco(meneco_tsv: str) -> List[str]:
     return rxn_list
 
 
-def create_new_meneco_tsv(meneco_tsv: str, kept_rxn: Set[str], output_meneco_tsv: str, message: str):
+def create_new_meneco_tsv(meneco_tsv: str, kept_rxn: Set[str], output_meneco_tsv: str, message: str or Dict[str, str]):
     """Create a new Meneco tsv output keeping only the reactions that led to a blast match.
 
     Parameters
@@ -42,7 +42,7 @@ def create_new_meneco_tsv(meneco_tsv: str, kept_rxn: Set[str], output_meneco_tsv
         set of reactions to keep in the Meneco output.
     output_meneco_tsv: str
         Path to the new meneco tsv output
-    message: str
+    message: str or Dict[str, str]
         Comment for adding the reaction
     """
     logging.info('\nCreation of filtered Meneco tsv output file')
@@ -52,7 +52,10 @@ def create_new_meneco_tsv(meneco_tsv: str, kept_rxn: Set[str], output_meneco_tsv
                 out_meneco.write(line)
             elif line.split('\t')[0] in kept_rxn:
                 line = line.split('\t')
-                line[-2] = message
+                if type(message) == str:
+                    line[-2] = message
+                else:
+                    line[-2] = message[line[0]]
                 out_meneco.write('\t'.join(line))
     logging.info(f'Meneco tsv output file saved in : {output_meneco_tsv}')
 

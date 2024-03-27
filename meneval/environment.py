@@ -366,12 +366,13 @@ def check_step_required_files(step: str, group=None) -> bool:
                     logging.info(f'Reaction file found for group {g}, --enrich={g} possible')
             return all_pres
         else:
-            if not os.path.exists(files_step[step][group]):
-                logging.info(f'No reaction file for group {group}, checking PADMET network presence')
-                if not check_enrich_networks_files(os.path.join(INPUT, ENRICH_D, group), PADMET_EXT):
-                    logging.info(f'No PADMET network for group {group}, checking SBML network presence')
-                    if not check_enrich_networks_files(os.path.join(INPUT, ENRICH_D, group), SBML_EXT):
-                        logging.info(f'No reaction file or PADMET networks or SBML networks for group {group}, '
-                                     f'--enrich={group} impossible')
-                        return False
+            if group != 'ALL':
+                if not os.path.exists(files_step[step][group]):
+                    logging.info(f'No reaction file for group {group}, checking PADMET network presence')
+                    if not check_enrich_networks_files(os.path.join(INPUT, ENRICH_D, group), PADMET_EXT):
+                        logging.info(f'No PADMET network for group {group}, checking SBML network presence')
+                        if not check_enrich_networks_files(os.path.join(INPUT, ENRICH_D, group), SBML_EXT):
+                            logging.info(f'No reaction file or PADMET networks or SBML networks for group {group}, '
+                                         f'--enrich={group} impossible')
+                            return False
         return True

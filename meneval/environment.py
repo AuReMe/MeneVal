@@ -261,6 +261,20 @@ def get_enrich_reactions_files() -> Dict[str, str]:
         enrich_dict[group] = os.path.join(enrich_input_dir, group, REACTIONS_TSV)
     return enrich_dict
 
+def get_enrich_rxn():
+    enrich_rxn = set()
+    enrich_output_dir = os.path.join(OUTPUT, ENRICH_D)
+    for group in os.listdir(enrich_output_dir):
+        group_dir = os.path.join(enrich_output_dir, group)
+        for file in os.listdir(group_dir):
+            if file.endswith('res_validation_networks.tsv'):
+                res_file = os.path.join(group_dir, file)
+                with open(res_file, 'r') as f:
+                    f.__next__()
+                    for l in f:
+                        enrich_rxn.add(l.split('\t')[0])
+    return enrich_rxn
+
 
 def check_enrich_networks_files(path, ext):
     nw_dir_assoc = {SBML_EXT: SBML_D,

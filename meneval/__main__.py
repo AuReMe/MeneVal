@@ -11,9 +11,9 @@ def get_command_line_args():
     parser.add_argument('--enrich', type=str, required=False, metavar='group name', help='Group for enrichment step')
     parser.add_argument('--fill', action='store_true', required=False, help='Runs fill step')
     parser.add_argument('--workflow', action='store_true', required=False, help='Runs all steps')
-    parser.add_argument('--exclude_enrich', action='store_true', required=False, help='Do not add enrichment step reactions to network')
+    parser.add_argument('--exclude', action='store_true', required=False, help='Remove enrichment step reactions to network')
     args = parser.parse_args()
-    return args.init, args.check, args.files, args.blastp, args.enrich, args.fill, args.workflow, args.exclude_enrich
+    return args.init, args.check, args.files, args.blastp, args.enrich, args.fill, args.workflow, args.exclude
 
 
 def main():
@@ -27,7 +27,7 @@ def main():
         groups = get_enrich_groups()
         for group in groups:
             if check_step_required_files(ENRICH, group):
-                run_step(ENRICH, group, exclude_enrich)
+                run_step(ENRICH, group)
         run_step(FILL)
         make_meneco_stats()
 
@@ -45,15 +45,18 @@ def main():
 
     if blastp:
         if check_step_required_files(BLASTP):
-            run_step(BLASTP, exclude_enrich=exclude_enrich)
+            run_step(BLASTP)
 
     if enrich is not None:
         if check_step_required_files(ENRICH, enrich):
-            run_step(ENRICH, group=enrich, exclude_enrich=exclude_enrich)
+            run_step(ENRICH, group=enrich)
 
     if fill:
-        run_step(FILL, exclude_enrich=exclude_enrich)
+        run_step(FILL)
         make_meneco_stats()
+
+    if exclude_enrich:
+        run_step(EXCLUDE_E)
 
 
 if __name__ == "__main__":

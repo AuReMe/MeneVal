@@ -83,6 +83,29 @@ def final_step(meneco_tsv, meneco_filtered):
     shutil.copy(meneco_tsv, meneco_filtered)
 
 
+def enrich_rxn_exclusion_step(dict_nw, prev_network_padmet, meneco_filtered):
+    enrich_rxn  = get_enrich_rxn()
+
+    # Create rxn deletion file
+    with open(meneco_filtered, 'w') as f:
+        f.write('\t'.join(['idRef', 'Common name', 'EC-number', 'Formula (with id)',
+                           'Formula (with cname)', 'Action', 'Comment', 'Genes']) + '\n')
+        for rxn in enrich_rxn:
+            f.write('\t'.join([rxn, 'Unknown', 'Unknown', 'Unknown', 'Unknown', 'delete', 'None',
+                               'Unknown']) + '\n')
+
+    # Delete reactions to network
+    logging.info(f'\nDeleting reactions found to network :\n{40 * "-"}\n')
+    print(prev_network_padmet)
+    add_rxn_to_nw(prev_network_padmet, dict_nw[PADMET_D], meneco_filtered)
+    check_file_creation(dict_nw[PADMET_D])
+
+    # Create SBML network
+    logging.info(f'\nConvert Padmet to SBML:\n{40 * "-"}\n')
+    padmet_to_sbml(padmet=dict_nw[PADMET_D], output=dict_nw[SBML_D])
+    check_file_creation(dict_nw[SBML_D])
+
+
 def get_prev_networks(num):
     for file in os.listdir(os.path.join(OUTPUT, NETWORK_D, PADMET_D)):
         file = str(file)
@@ -94,7 +117,7 @@ def get_prev_networks(num):
     logging.info(f'No previous networks found for step number {num}')
 
 
-def run_step(name, group=None, exclude_enrich=False):
+def run_step(name, group=None):
     # Get appropriated file
     dict_nw = get_nw_path(name, group)
     num = get_num(name, group)
@@ -104,61 +127,61 @@ def run_step(name, group=None, exclude_enrich=False):
     logging.info(f'{50 * "="}\n\tSTEP {num} : MENECO + {name} VALIDATION\n{50 * "="}\n')
     meneco_out, meneco_tsv, meneco_filtered = get_meneco_files(num)
 
-    # Meneco run
-    logging.info(f'Running Meneco :\n{40 * "-"}\n')
-    if not os.path.exists(meneco_out):
-        run_meneco(prev_network_sbml, meneco_out)
+    if name == EXCLUDE_E:
+        enrich_rxn_exclusion_step(dict_nw, prev_network_padmet, meneco_filtered)
+
     else:
-        logging.info(f'{meneco_out} file found, passing meneco run.')
-    check_file_creation(meneco_out)
-
-    if exists_not_producible_targets(meneco_out):
-
-        # TSV output creation
-        logging.info(f'\nCreate Meneco tsv output :\n{40 * "-"}\n')
-        if not os.path.exists(meneco_tsv):
-            meneco_json_to_tsv(meneco_out, meneco_tsv)
+        # Meneco run
+        logging.info(f'Running Meneco :\n{40 * "-"}\n')
+        if not os.path.exists(meneco_out):
+            run_meneco(prev_network_sbml, meneco_out)
         else:
-            logging.info(f'{meneco_tsv} file found, passing tsv creation.')
-        check_file_creation(meneco_tsv)
+            logging.info(f'{meneco_out} file found, passing meneco run.')
+        check_file_creation(meneco_out)
 
-        # Validation step
-        logging.info(f'\nRunning {name} validation step :\n{40 * "-"}\n')
-        if not os.path.exists(meneco_filtered):
-            if name == BLASTP:
-                blastp_step(meneco_tsv, meneco_filtered)
-                add_genes_tsv(meneco_filtered)
-            if name == ENRICH:
-                enrichment_step(meneco_tsv, meneco_filtered, group)
-            if name == FILL:
-                final_step(meneco_tsv, meneco_filtered)
-            logging.basicConfig(filename=LOG_FILE, level=logging.INFO, format='%(message)s', force=True)
-        else:
-            logging.info(f'{meneco_filtered} file found, passing {name} validation.')
-        check_file_creation(meneco_filtered)
+        if exists_not_producible_targets(meneco_out):
 
-        # Add reactions to network
-        logging.info(f'\nAdding reactions found to network :\n{40 * "-"}\n')
-        if not os.path.exists(dict_nw[PADMET_D]):
-            if not exclude_enrich:
+            # TSV output creation
+            logging.info(f'\nCreate Meneco tsv output :\n{40 * "-"}\n')
+            if not os.path.exists(meneco_tsv):
+                meneco_json_to_tsv(meneco_out, meneco_tsv)
+            else:
+                logging.info(f'{meneco_tsv} file found, passing tsv creation.')
+            check_file_creation(meneco_tsv)
+
+            # Validation step
+            logging.info(f'\nRunning {name} validation step :\n{40 * "-"}\n')
+            if not os.path.exists(meneco_filtered):
+                if name == BLASTP:
+                    blastp_step(meneco_tsv, meneco_filtered)
+                    add_genes_tsv(meneco_filtered)
+                if name == ENRICH:
+                    enrichment_step(meneco_tsv, meneco_filtered, group)
+                if name == FILL:
+                    final_step(meneco_tsv, meneco_filtered)
+                logging.basicConfig(filename=LOG_FILE, level=logging.INFO, format='%(message)s', force=True)
+            else:
+                logging.info(f'{meneco_filtered} file found, passing {name} validation.')
+            check_file_creation(meneco_filtered)
+
+            # Add reactions to network
+            logging.info(f'\nAdding reactions found to network :\n{40 * "-"}\n')
+            if not os.path.exists(dict_nw[PADMET_D]):
                 add_rxn_to_nw(prev_network_padmet, dict_nw[PADMET_D], meneco_filtered)
             else:
-                exclude_rxn = get_enrich_rxn()
-                add_rxn_to_nw(prev_network_padmet, dict_nw[PADMET_D], meneco_filtered, exclude_rxn)
-        else:
-            logging.info(f'{dict_nw[PADMET_D]} file found, passing adding reactions to network.')
-        check_file_creation(dict_nw[PADMET_D])
+                logging.info(f'{dict_nw[PADMET_D]} file found, passing adding reactions to network.')
+            check_file_creation(dict_nw[PADMET_D])
 
-        # Create SBML network
-        logging.info(f'\nConvert Padmet to SBML:\n{40 * "-"}\n')
-        if not os.path.exists(dict_nw[SBML_D]):
-            padmet_to_sbml(padmet=dict_nw[PADMET_D], output=dict_nw[SBML_D])
-        else:
-            logging.info(f'{dict_nw[SBML_D]} file found, passing convert Padmet to SBML.')
-        check_file_creation(dict_nw[SBML_D])
+            # Create SBML network
+            logging.info(f'\nConvert Padmet to SBML:\n{40 * "-"}\n')
+            if not os.path.exists(dict_nw[SBML_D]):
+                padmet_to_sbml(padmet=dict_nw[PADMET_D], output=dict_nw[SBML_D])
+            else:
+                logging.info(f'{dict_nw[SBML_D]} file found, passing convert Padmet to SBML.')
+            check_file_creation(dict_nw[SBML_D])
 
-    else:
-        logging.info('\n--> No targets left to reach. Finishing step.')
+        else:
+            logging.info('\n--> No targets left to reach. Finishing step.')
 
     logging.info(f'\n-----------\nStep {num} Done\n')
 

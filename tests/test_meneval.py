@@ -11,10 +11,10 @@ class Test(unittest.TestCase):
         self.move_files()
         os.system('meneval --check')
 
-    def tearDown(self):
-        shutil.rmtree('Input')
-        shutil.rmtree('Output')
-        os.remove('meneco_validation.log')
+    # def tearDown(self):
+    #     shutil.rmtree('Input')
+    #     shutil.rmtree('Output')
+    #     os.remove('meneco_validation.log')
 
     @staticmethod
     def move_files():
@@ -103,7 +103,9 @@ class Test(unittest.TestCase):
 
     def test_enrich_exclude(self):
         group = 'ALL'
-        os.system(f'meneval --enrich {group} --exclude_enrich')
+        os.system(f'meneval --enrich {group}')
+        os.system(f'meneval --fill')
+        os.system(f'meneval --exclude')
 
 
     def test_fill(self):

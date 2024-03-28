@@ -51,24 +51,40 @@ bash install_dependencies.sh
 
 ## Usages
 
+**Initialisation of project directories**
 ```commandline
 meneval --init
 ```
+Fill directories with the rights input files
+
+**Checking for input files**
 ```commandline
 meneval --check
 ```
+**Generate supplementary input files**
 ```commandline
 meneval --files
 ```
+**Gapfilling + Adding reactions with blastp hit**
 ```commandline
 meneval --blastp
 ```
+**Gapfilling + Adding reactions from enrichment networks**
+
 ```commandline
 meneval --enrich Group
 ```
+(`meneval --enrich all` for considering all groups at once)
+
+**Gapfilling + Adding reactions left**
 ```commandline
 meneval --fill
 ```
+**Removing reactions from enrichment networks**
+```commandline
+meneval --exclude
+```
+**Run all steps from check step**
 ```commandline
 meneval --workflow
 ```

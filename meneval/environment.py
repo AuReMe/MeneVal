@@ -365,7 +365,7 @@ def check_step_required_files(step: str, group=None) -> bool:
         if files_step[step] == dict():
             logging.info(f'No group directories for {step} step, passing the step\n')
             return False
-        elif group is None:
+        elif group is None or group == GROUP_ALL:
             all_pres = True
             for g, path in files_step[step].items():
                 if not os.path.exists(path):
@@ -384,13 +384,12 @@ def check_step_required_files(step: str, group=None) -> bool:
                     logging.info(f'Reaction file found for group {g}, --enrich={g} possible')
             return all_pres
         else:
-            if group != GROUP_ALL:
-                if not os.path.exists(files_step[step][group]):
-                    logging.info(f'No reaction file for group {group}, checking PADMET network presence')
-                    if not check_enrich_networks_files(os.path.join(INPUT, ENRICH_D, group), PADMET_EXT):
-                        logging.info(f'No PADMET network for group {group}, checking SBML network presence')
-                        if not check_enrich_networks_files(os.path.join(INPUT, ENRICH_D, group), SBML_EXT):
-                            logging.info(f'No reaction file or PADMET networks or SBML networks for group {group}, '
-                                         f'--enrich={group} impossible')
-                            return False
+            if not os.path.exists(files_step[step][group]):
+                logging.info(f'No reaction file for group {group}, checking PADMET network presence')
+                if not check_enrich_networks_files(os.path.join(INPUT, ENRICH_D, group), PADMET_EXT):
+                    logging.info(f'No PADMET network for group {group}, checking SBML network presence')
+                    if not check_enrich_networks_files(os.path.join(INPUT, ENRICH_D, group), SBML_EXT):
+                        logging.info(f'No reaction file or PADMET networks or SBML networks for group {group}, '
+                                     f'--enrich={group} impossible')
+                        return False
         return True

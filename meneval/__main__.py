@@ -24,11 +24,11 @@ def main():
         generate_files()
         if check_step_required_files(BLASTP):
             run_step(BLASTP)
-        groups = get_enrich_groups()
-        for group in groups:
-            if check_step_required_files(ENRICH, group):
-                run_step(ENRICH, group)
+        group = GROUP_ALL
+        if check_step_required_files(ENRICH, group):
+            run_step(ENRICH, group)
         run_step(FILL)
+        run_step(EXCLUDE_E)
         make_meneco_stats()
 
     # INITIALIZATION AND CHECK =========================================================================================
@@ -48,6 +48,8 @@ def main():
             run_step(BLASTP)
 
     if enrich is not None:
+        if enrich.upper() == GROUP_ALL:
+            enrich = GROUP_ALL
         if check_step_required_files(ENRICH, enrich):
             run_step(ENRICH, group=enrich)
 

@@ -45,9 +45,13 @@ FASTA_EXT = '.fasta'
 FAA_EXT = '.faa'
 SBML_EXT = '.sbml'
 
+# STEPS
 BLASTP = 'BLASTP'
 ENRICH = 'ENRICHMENT'
 FILL = 'FILL'
+EXCLUDE_E = 'EXCLUDE'
+
+# STR
 GROUP_ALL = 'ALL'
 
 # UTILITY FUNCTIONS ====================================================================================================

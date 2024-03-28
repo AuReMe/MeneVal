@@ -103,7 +103,14 @@ class Test(unittest.TestCase):
 
     def test_enrich_exclude(self):
         group = 'ALL'
-        os.system(f'meneval --enrich {group} --exclude_enrich')
+        os.system(f'meneval --enrich {group}')
+        os.system(f'meneval --fill')
+        os.system(f'meneval --exclude')
+        self.assertTrue(os.path.exists(os.path.join(OUTPUT, MENECO_D, FILTERED_D, f'{3}_meneco_out_filtered.tsv')))
+
+        nw = get_nw_path(EXCLUDE_E)
+        self.assertTrue(os.path.exists(nw[PADMET_D]))
+        self.assertTrue(os.path.exists(nw[SBML_D]))
 
 
     def test_fill(self):
